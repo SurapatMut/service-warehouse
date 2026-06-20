@@ -98,16 +98,7 @@ router.delete('/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
-await run(`CREATE TABLE IF NOT EXISTS import_logs (
-    id         INTEGER PRIMARY KEY AUTOINCREMENT,
-    item_id    INTEGER NOT NULL,
-    item_name  TEXT    NOT NULL,
-    item_type  TEXT    NOT NULL,
-    qty        INTEGER NOT NULL DEFAULT 1,
-    serial     TEXT,
-    note       TEXT,
-    imported_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
-  )`);
+
 
 router.delete('/:id/serials/:snId', async (req, res) => {
   try {
