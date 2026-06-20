@@ -98,7 +98,20 @@ router.delete('/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
-
+router.post('/:id/serials', async (req, res) => {
+  const db = getDb();
+  try {
+    const { serial } = req.body;
+    if (!serial) return res.status(400).json({ success: false, error: 'serial is required' });
+    const item = await db.get(`SELECT * FROM items WHERE id=?`, [req.params.id]);
+    if (!item) return res.status(404).json({ success: false, error: 'Item not found' });
+    if (item.type === 'free') return res.status(400).json({ success: false, error: 'Free items do not use serial numbers' });
+    const r = await db.run(`INSERT INTO serials (item_id,serial) VALUES (?,?)`, [req.params.id, serial.trim()]);
+    await db.run(`INSERT INTO import_logs (item_id,item_name,item_type,qty,serial) VALUES (?,?,?,?,?)`,
+      [item.id, item.name, item.type, 1, serial.trim()]);
+    res.status(201).json({ success: true, data: { id: r.lastID, serial: serial.trim(), status: 'in_stock' } });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
 
 router.delete('/:id/serials/:snId', async (req, res) => {
   try {
