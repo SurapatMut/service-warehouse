@@ -924,6 +924,13 @@ function renderUseSerialTags() {
     ).join('');
   }
   updateUseConfirmBtn();
+  syncUQtyWithSerials();
+}
+
+function syncUQtyWithSerials() {
+  if (state.useSerials.length > 0) {
+    document.getElementById('uQty').value = state.useSerials.length;
+  }
 }
 
 function updateUseConfirmBtn() {
