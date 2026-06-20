@@ -827,7 +827,8 @@ async function saveItem() {
 
   // เช็คชื่อซ้ำจาก API (ดึงทั้งหมดมาเปรียบเทียบ)
   const { data: allItems } = await api('/items?type=all&sort=name');
-  const existing = allItems.find(i => i.name.trim().toLowerCase() === name.toLowerCase());
+  const existing = allItems.find(i => 
+  i.name.trim().toLowerCase() === name.toLowerCase() && i.type === type);
 
   if (existing) {
     // ชื่อซ้ำ → เพิ่มแค่ SN และจำนวน ไม่สร้างรายการใหม่
