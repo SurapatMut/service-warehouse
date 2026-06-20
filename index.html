@@ -885,22 +885,56 @@ async function openImportModal() {
   try {
     const { data } = await api('/items/import-logs');
     if (!data.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted)">ยังไม่มีประวัติ</p>'; return; }
-    const dotColor = { install: 'var(--blue)', service: 'var(--green)', free: 'var(--amber)' };
-    el.innerHTML = data.map(l => `
-      <div class="hist-item">
-        <div class="hist-dot" style="background:${dotColor[l.item_type]||'var(--muted)'}"></div>
-        <div class="hist-body">
-          <div class="hist-name">${l.item_name}</div>
-          <div class="hist-meta">
-            <span class="badge b-${l.item_type}" style="font-size:10px;padding:1px 6px">
-              ${l.item_type==='install'?'Install':l.item_type==='service'?'Service':'Free'}
-            </span>
-            ${l.serial ? `· Serial: <span style="font-family:var(--mono)">${l.serial}</span>` : `· จำนวน: ${l.qty}`}
-          </div>
-        </div>
-        <div class="hist-time">${l.imported_at}</div>
-      </div>`).join('');
+    
+    // เก็บ data ไว้ใช้ตอนค้นหา
+    window._importData = data;
+    
+    // เพิ่ม search box ก่อน list
+    const modal = el.closest('.modal');
+    if (!modal.querySelector('.import-search')) {
+      const searchBox = document.createElement('div');
+      searchBox.className = 'import-search';
+      searchBox.innerHTML = `
+        <div class="search-box" style="margin-bottom:14px;min-width:unset;width:100%">
+          <i class="ti ti-search"></i>
+          <input type="text" placeholder="ค้นหา Serial, ชื่อสินค้า..." oninput="filterImportList(this.value)" />
+        </div>`;
+      modal.insertBefore(searchBox, el);
+    }
+    
+    renderImportList(data);
   } catch(e) { el.innerHTML = '<p style="color:var(--red)">โหลดไม่ได้</p>'; }
+}
+
+function filterImportList(q) {
+  if (!window._importData) return;
+  const filtered = q.trim()
+    ? window._importData.filter(l =>
+        l.item_name?.toLowerCase().includes(q.toLowerCase()) ||
+        l.serial?.toLowerCase().includes(q.toLowerCase())
+      )
+    : window._importData;
+  renderImportList(filtered);
+}
+
+function renderImportList(data) {
+  const el = document.getElementById('importList');
+  if (!data.length) { el.innerHTML = '<p style="text-align:center;color:var(--hint);padding:1rem">ไม่พบรายการ</p>'; return; }
+  const dotColor = { install: 'var(--blue)', service: 'var(--green)', free: 'var(--amber)' };
+  el.innerHTML = data.map(l => `
+    <div class="hist-item">
+      <div class="hist-dot" style="background:${dotColor[l.item_type]||'var(--muted)'}"></div>
+      <div class="hist-body">
+        <div class="hist-name">${l.item_name}</div>
+        <div class="hist-meta">
+          <span class="badge b-${l.item_type}" style="font-size:10px;padding:1px 6px">
+            ${l.item_type==='install'?'Install':l.item_type==='service'?'Service':'Free'}
+          </span>
+          ${l.serial ? `· Serial: <span style="font-family:var(--mono)">${l.serial}</span>` : `· จำนวน: ${l.qty}`}
+        </div>
+      </div>
+      <div class="hist-time">${l.imported_at}</div>
+    </div>`).join('');
 }
 
 async function openQuickUseModal() {
