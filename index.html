@@ -1022,15 +1022,20 @@ function openHistModal() {
   try {
     const { data } = await api('/items/import-logs');
     if (!data.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted)">ยังไม่มีประวัติ</p>'; return; }
+    const dotColor = { install: 'var(--blue)', service: 'var(--green)', free: 'var(--amber)' };
     el.innerHTML = data.map(l => `
       <div class="hist-item">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <strong>${l.item_name}</strong>
-          <span style="font-size:11px;color:var(--muted)">${l.imported_at}</span>
+        <div class="hist-dot" style="background:${dotColor[l.item_type]||'var(--muted)'}"></div>
+        <div class="hist-body">
+          <div class="hist-name">${l.item_name}</div>
+          <div class="hist-meta">
+            <span class="badge b-${l.item_type}" style="font-size:10px;padding:1px 6px">
+              ${l.item_type==='install'?'Install':l.item_type==='service'?'Service':'Free'}
+            </span>
+            ${l.serial ? `· Serial: <span style="font-family:var(--mono)">${l.serial}</span>` : `· จำนวน: ${l.qty}`}
+          </div>
         </div>
-        <div style="font-size:12px;color:var(--muted);margin-top:4px">
-          ${l.serial ? `Serial: <span style="font-family:var(--mono)">${l.serial}</span>` : `จำนวน: ${l.qty}`}
-        </div>
+        <div class="hist-time">${l.imported_at}</div>
       </div>
     `).join('');
   } catch(e) { el.innerHTML = '<p style="color:var(--red)">โหลดไม่ได้</p>'; }
