@@ -142,5 +142,11 @@ router.post('/:id/use', async (req, res) => {
     res.json({ success: true, data: { log_id: logId, qty_used: qty, serials_used: usedSerials } });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
+router.get('/import-logs', async (req, res) => {
+  try {
+    const logs = await db.all(`SELECT * FROM import_logs ORDER BY imported_at DESC LIMIT 200`);
+    res.json({ success: true, data: logs });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
 
 module.exports = router;
