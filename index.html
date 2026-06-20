@@ -608,9 +608,9 @@ function renderTable() {
       <td style="color:var(--muted);font-size:12px">${item.category||'—'}</td>
       <td style="text-align:center">
         <div class="qty-ctrl">
-          <button class="qbtn" onclick="quickQty(${item.id},-1)">−</button>
+          <button class="qbtn" disabled style="opacity:.35;cursor:not-allowed">−</button>
           <span class="qval">${item.qty}</span>
-          <button class="qbtn" onclick="quickQty(${item.id},1)">+</button>
+          <button class="qbtn" disabled style="opacity:.35;cursor:not-allowed">+</button>
         </div>
         <div style="font-size:10px;color:var(--hint);margin-top:3px">${item.unit||''}</div>
       </td>
