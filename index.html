@@ -834,7 +834,7 @@ if (type !== 'free' && serials.length === 0) {
   return;
 }
   // เช็คชื่อซ้ำจาก API (ดึงทั้งหมดมาเปรียบเทียบ)
-  const { data: allItems } = await api('/items?type=all&sort=name');
+  const { data: allItems } = await api('/items?sort=name');
   const existing = allItems.find(i => 
   i.name.trim().toLowerCase() === name.toLowerCase() && i.type === type);
 
