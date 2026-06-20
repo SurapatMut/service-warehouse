@@ -800,9 +800,16 @@ function addFormSn() {
   if (!state.formSns.includes(v)) state.formSns.push(v);
   document.getElementById('fSnInput').value = '';
   renderFormSnTags();
+  syncFQtyWithSns();
 }
 
-function removeFormSn(idx) { state.formSns.splice(idx,1); renderFormSnTags(); }
+function removeFormSn(idx) { state.formSns.splice(idx,1); renderFormSnTags(); syncFQtyWithSns(); }
+
+function syncFQtyWithSns() {
+  if (document.getElementById('fType').value !== 'free') {
+    document.getElementById('fQty').value = state.formSns.length;
+  }
+}
 
 function renderFormSnTags() {
   document.getElementById('fSnTags').innerHTML = state.formSns.map((s,i)=>
