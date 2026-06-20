@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>คลัง Service</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.4.0/tabler-icons.min.css" />
+<style>
+:root {
+  --bg:       #0f1117;
+  --surface:  #181c27;
+  --surface2: #1f2435;
+  --border:   rgba(255,255,255,0.08);
+  --border2:  rgba(255,255,255,0.14);
+  --text:     #e8eaf0;
+  --muted:    #7c8299;
+  --hint:     #4a5068;
+  --blue:     #4a9eff;
+  --blue-dim: rgba(74,158,255,0.12);
+  --green:    #34c47c;
+  --green-dim:rgba(52,196,124,0.12);
+  --amber:    #f5a623;
+  --amber-dim:rgba(245,166,35,0.12);
+  --red:      #ff5f5f;
+  --red-dim:  rgba(255,95,95,0.12);
+  --radius:   10px;
+  --radius-sm:6px;
+  --font:     'IBM Plex Sans Thai', sans-serif;
+  --mono:     'IBM Plex Mono', monospace;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; }
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+a { color: inherit; text-decoration: none; }
+button { font-family: var(--font); cursor: pointer; border: none; }
+input, select, textarea { font-family: var(--font); }
+
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 220px; flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  position: sticky; top: 0; height: 100vh;
+}
+.sidebar-logo {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo .icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: linear-gradient(135deg, #2a5cff 0%, #4a9eff 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 18px; margin-bottom: 10px;
+}
+.sidebar-logo h1 { font-size: 15px; font-weight: 500; }
+.sidebar-logo p  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.sidebar-nav { padding: 12px 10px; flex: 1; }
+.nav-label { font-size: 10px; color: var(--hint); text-transform: uppercase; letter-spacing: .08em; padding: 8px 8px 4px; }
+.nav-item {
+  display: flex; align-items: center; gap: 9px;
+  padding: 9px 10px; border-radius: var(--radius-sm);
+  color: var(--muted); font-size: 13px; cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.nav-item:hover { background: var(--surface2); color: var(--text); }
+.nav-item.active { background: var(--blue-dim); color: var(--blue); }
+.nav-item i { font-size: 17px; }
+.nav-item .cnt {
+  margin-left: auto; font-size: 10px; padding: 1px 6px;
+  border-radius: 99px; background: var(--surface2); color: var(--muted);
+}
+.sidebar-footer {
+  padding: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--hint); text-align: center;
+}
+
+.main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+
+.topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 24px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 10;
+}
+.topbar-title { font-size: 15px; font-weight: 500; flex: 1; }
+.search-box {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: 0 12px; height: 36px; min-width: 240px;
+  transition: border-color .15s;
+}
+.search-box:focus-within { border-color: var(--blue); }
+.search-box i { color: var(--muted); font-size: 15px; }
+.search-box input { background: none; border: none; color: var(--text); font-size: 13px; width: 100%; outline: none; }
+.search-box input::placeholder { color: var(--hint); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 36px; padding: 0 14px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; transition: opacity .15s, background .15s;
+  white-space: nowrap;
+}
+.btn-ghost { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-primary:hover { opacity: .88; }
+.btn-danger  { background: var(--red-dim); color: var(--red); border: 1px solid transparent; }
+.btn-danger:hover { border-color: var(--red); }
+.btn-warn    { background: var(--amber-dim); color: var(--amber); border: 1px solid transparent; }
+.btn-warn:hover { border-color: var(--amber); }
+.btn-sm { height: 28px; padding: 0 10px; font-size: 12px; }
+.btn-xs { height: 24px; padding: 0 8px; font-size: 11px; border-radius: 5px; }
+
+.content { padding: 24px; flex: 1; }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px; margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px;
+}
+.stat-card .s-label {
+  font-size: 11px; color: var(--muted);
+  display: flex; align-items: center; gap: 5px; margin-bottom: 8px;
+}
+.stat-card .s-dot { width: 7px; height: 7px; border-radius: 50%; }
+.stat-card .s-num { font-size: 26px; font-weight: 500; line-height: 1; }
+.stat-card .s-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+.filter-bar {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;
+}
+.ftabs { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
+.ftab {
+  height: 32px; padding: 0 14px; border-radius: 99px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--muted); font-size: 13px; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.ftab:hover { border-color: var(--border2); color: var(--text); }
+.ftab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+.ftab .cnt { font-size: 10px; opacity: .7; }
+.selects { display: flex; gap: 8px; }
+.selects select {
+  height: 32px; padding: 0 10px; border-radius: var(--radius-sm);
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); font-size: 12px; cursor: pointer; outline: none;
+}
+.cnt-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+.table-wrap {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+thead { background: var(--surface2); }
+th {
+  text-align: left; padding: 10px 14px;
+  font-size: 11px; font-weight: 500; color: var(--muted);
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+}
+td { padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,.02); }
+
+.item-name { font-weight: 500; font-size: 13px; }
+.item-sku  { font-size: 11px; color: var(--muted); font-family: var(--mono); margin-top: 2px; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; padding: 3px 8px; border-radius: 99px; font-weight: 500;
+}
+.b-install { background: var(--blue-dim);  color: var(--blue);  }
+.b-service { background: var(--green-dim); color: var(--green); }
+.b-free    { background: var(--amber-dim); color: var(--amber); }
+.b-ok      { background: var(--green-dim); color: var(--green); }
+.b-low     { background: var(--red-dim);   color: var(--red);   }
+
+.serial-wrap { display: flex; flex-wrap: wrap; gap: 4px; }
+.stag {
+  font-size: 10px; padding: 2px 6px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 4px; color: var(--muted); font-family: var(--mono);
+}
+.btn-add-sn {
+  font-size: 10px; padding: 2px 6px;
+  border: 1px dashed var(--border2); border-radius: 4px;
+  background: none; color: var(--hint); cursor: pointer;
+  display: inline-flex; align-items: center; gap: 2px;
+}
+.btn-add-sn:hover { color: var(--blue); border-color: var(--blue); }
+
+.qty-ctrl { display: inline-flex; align-items: center; gap: 6px; }
+.qbtn {
+  width: 24px; height: 24px; border-radius: 5px;
+  background: var(--surface2); border: 1px solid var(--border);
+  color: var(--text); font-size: 14px; cursor: pointer; line-height: 1;
+  display: flex; align-items: center; justify-content: center;
+}
+.qbtn:hover { border-color: var(--border2); background: var(--bg); }
+.qval { min-width: 24px; text-align: center; font-weight: 500; }
+
+.td-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+.empty-row td { text-align: center; padding: 3rem; color: var(--hint); }
+.empty-row i   { font-size: 28px; display: block; margin-bottom: 8px; opacity: .4; }
+
+.overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.6); z-index: 100;
+  align-items: flex-start; justify-content: center; padding: 60px 16px;
+}
+.overlay.open { display: flex; }
+.modal {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 14px; padding: 24px; width: 440px; max-width: 100%;
+  max-height: 90vh; overflow-y: auto;
+}
+.modal-lg { width: 600px; }
+.modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 18px; }
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+.form-group input,
+.form-group select {
+  width: 100%; height: 38px; padding: 0 12px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--text); font-size: 13px; outline: none;
+  transition: border-color .15s;
+}
+.form-group input:focus,
+.form-group select:focus { border-color: var(--blue); }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sn-field-row { display: flex; gap: 8px; }
+.sn-field-row input { flex: 1; }
+.sn-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; min-height: 32px; }
+.sn-tag {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; padding: 3px 8px;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 5px; font-family: var(--mono);
+}
+.sn-tag .rm { color: var(--red); cursor: pointer; font-size: 13px; line-height: 1; }
+.modal-footer { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+.hist-list { display: flex; flex-direction: column; }
+.hist-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--border);
+}
+.hist-item:last-child { border-bottom: none; }
+.hist-dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 5px; flex-shrink: 0; }
+.hist-body { flex: 1; min-width: 0; }
+.hist-name { font-size: 13px; font-weight: 500; }
+.hist-meta { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.hist-time { font-size: 11px; color: var(--hint); white-space: nowrap; }
+
+.toast {
+  position: fixed; bottom: 24px; right: 24px; z-index: 200;
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 12px 18px;
+  font-size: 13px; display: flex; align-items: center; gap: 8px;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .25s, transform .25s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translateY(0); }
+.toast.success i { color: var(--green); }
+.toast.error   i { color: var(--red); }
+
+.loading { text-align: center; padding: 3rem; color: var(--hint); }
+.loading i { font-size: 24px; display: block; margin-bottom: 8px; animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .stat-grid { grid-template-columns: repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="icon"><i class="ti ti-building-warehouse"></i></div>
+      <h1>คลัง Service</h1>
+      <p id="sidebarTime"></p>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label">เมนูหลัก</div>
+      <div class="nav-item active" onclick="setPage('dashboard')">
+        <i class="ti ti-layout-dashboard"></i> แดชบอร์ด
+      </div>
+      <div class="nav-item" onclick="setPage('items')">
+        <i class="ti ti-package"></i> สินค้าทั้งหมด
+        <span class="cnt" id="sidebarItemCount">0</span>
+      </div>
+      <div class="nav-item" onclick="setPage('history')">
+        <i class="ti ti-history"></i> ประวัตินำออก
+      </div>
+      <div class="nav-label" style="margin-top:12px">หมวดสินค้า</div>
+      <div class="nav-item" onclick="setFilterAndPage('install')">
+        <i class="ti ti-tool"></i> Install
+        <span class="cnt" id="sidebarInstall">0</span>
+      </div>
+      <div class="nav-item" onclick="setFilterAndPage('service')">
+        <i class="ti ti-settings"></i> Service
+        <span class="cnt" id="sidebarService">0</span>
+      </div>
+      <div class="nav-item" onclick="setFilterAndPage('free')">
+        <i class="ti ti-gift"></i> Free
+        <span class="cnt" id="sidebarFree">0</span>
+      </div>
+      <div class="nav-item" onclick="setFilterAndPage('low')" style="margin-top:4px">
+        <i class="ti ti-alert-triangle"></i> ใกล้หมด / หมด
+        <span class="cnt" id="sidebarLow" style="background:var(--red-dim);color:var(--red)">0</span>
+      </div>
+    </nav>
+    <div class="sidebar-footer">v1.0.0 · Service Warehouse</div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="pageTitle">แดชบอร์ด</span>
+      <div class="search-box">
+        <i class="ti ti-search"></i>
+        <input type="text" id="searchInput" placeholder="ค้นหาชื่อ, SKU, Serial..." oninput="debounceLoad()" />
+      </div>
+      <button class="btn btn-ghost" onclick="openHistModal()">
+        <i class="ti ti-history"></i> ประวัตินำออก
+      </button>
+      <button class="btn btn-primary" onclick="openAddModal()">
+        <i class="ti ti-plus"></i> เพิ่มสินค้า
+      </button>
+    </div>
+
+    <div class="content" id="mainContent">
+      <div class="loading"><i class="ti ti-loader-2"></i> กำลังโหลด...</div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="addOverlay">
+  <div class="modal">
+    <h3 id="addModalTitle">เพิ่มสินค้าใหม่</h3>
+    <div class="form-group">
+      <label>ชื่อสินค้า <span style="color:var(--red)">*</span></label>
+      <input type="text" id="fName" placeholder="เช่น กล้อง CCTV Hikvision DS-2CD2143G2" />
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>SKU / รหัสสินค้า</label>
+        <input type="text" id="fSku" placeholder="เช่น INS-001" />
+      </div>
+      <div class="form-group">
+        <label>ประเภท <span style="color:var(--red)">*</span></label>
+        <select id="fType" onchange="onTypeChange()">
+          <option value="install">Install</option>
+          <option value="service">Service</option>
+          <option value="free">Free</option>
+        </select>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="form-group">
+        <label>หมวดหมู่</label>
+        <input type="text" id="fCat" placeholder="เช่น กล้องวงจรปิด" />
+      </div>
+      <div class="form-group">
+        <label>หน่วย</label>
+        <input type="text" id="fUnit" placeholder="เช่น ชุด, ตัว, เมตร" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>จำนวนเริ่มต้น</label>
+      <input type="number" id="fQty" value="1" min="0" />
+    </div>
+    <div class="form-group" id="snFormGroup">
+      <label>Serial Numbers <span style="color:var(--muted)">(กด Enter เพื่อเพิ่ม)</span></label>
+      <div class="sn-field-row">
+        <input type="text" id="fSnInput" placeholder="กรอก Serial Number" onkeydown="if(event.key==='Enter'){addFormSn();event.preventDefault()}" />
+        <button class="btn btn-ghost" onclick="addFormSn()"><i class="ti ti-plus"></i></button>
+      </div>
+      <div class="sn-tags" id="fSnTags"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('addOverlay')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="saveItem()"><i class="ti ti-check"></i> บันทึก</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="snOverlay">
+  <div class="modal">
+    <h3 id="snModalTitle">จัดการ Serial Numbers</h3>
+    <div class="form-group">
+      <label>เพิ่ม Serial (กด Enter)</label>
+      <div class="sn-field-row">
+        <input type="text" id="snInput" placeholder="Serial Number" onkeydown="if(event.key==='Enter'){addSnInline();event.preventDefault()}" />
+        <button class="btn btn-ghost" onclick="addSnInline()"><i class="ti ti-plus"></i></button>
+      </div>
+    </div>
+    <div class="sn-tags" id="snModalTags"></div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('snOverlay');loadItems()"><i class="ti ti-check"></i> เสร็จสิ้น</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="useOverlay">
+  <div class="modal">
+    <h3>นำสินค้าออก</h3>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px" id="useItemName"></p>
+    <div class="form-group">
+      <label>จำนวนที่นำออก</label>
+      <input type="number" id="uQty" value="1" min="1" />
+    </div>
+    <div id="uSnSection"></div>
+    <div class="form-group">
+      <label>หมายเหตุ</label>
+      <input type="text" id="uNote" placeholder="เช่น ติดตั้งที่โครงการ XYZ" />
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('useOverlay')">ยกเลิก</button>
+      <button class="btn btn-primary" onclick="confirmUse()"><i class="ti ti-arrow-up-right"></i> ยืนยันนำออก</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="histOverlay">
+  <div class="modal modal-lg">
+    <h3>ประวัตินำออก</h3>
+    <div class="filter-bar" style="margin-bottom:14px">
+      <select id="histTypeFilter" style="height:30px;padding:0 8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;outline:none" onchange="loadHistory()">
+        <option value="">ทุกประเภท</option>
+        <option value="install">Install</option>
+        <option value="service">Service</option>
+        <option value="free">Free</option>
+      </select>
+    </div>
+    <div id="histList" class="hist-list"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('histOverlay')">ปิด</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-check"></i> <span id="toastMsg"></span></div>
+
+<script>
+const API = 'http://localhost:3001/api';
+
+let state = {
+  items: [], stats: null,
+  filter: 'all', sort: 'name', search: '',
+  page: 'dashboard',
+  editId: null, useTargetId: null, snTargetId: null,
+  formSns: [],
+};
+let debTimer = null;
+
+async function api(path, opts = {}) {
+  const res = await fetch(API + path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  const data = await res.json();
+  if (!data.success) throw new Error(data.error || 'API error');
+  return data;
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.querySelector('i').className = type === 'success' ? 'ti ti-check' : 'ti ti-x';
+  t.className = `toast ${type}`;
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function debounceLoad() {
+  clearTimeout(debTimer);
+  debTimer = setTimeout(loadItems, 300);
+}
+
+async function loadStats() {
+  try {
+    const { data } = await api('/items/stats');
+    state.stats = data;
+    renderStats();
+    updateSidebar();
+  } catch (e) { console.error(e); }
+}
+
+async function loadItems() {
+  state.search = document.getElementById('searchInput').value;
+  const params = new URLSearchParams({ type: state.filter, sort: state.sort });
+  if (state.search) params.set('search', state.search);
+  try {
+    const { data } = await api(`/items?${params}`);
+    state.items = data;
+    renderTable();
+    document.getElementById('cntLabel') && (document.getElementById('cntLabel').textContent = `แสดง ${data.length} รายการ`);
+  } catch (e) { console.error(e); }
+}
+
+async function loadHistory() {
+  const type = document.getElementById('histTypeFilter')?.value || '';
+  const params = new URLSearchParams({ limit: 200 });
+  if (type) params.set('type', type);
+  try {
+    const { data } = await api(`/logs?${params}`);
+    renderHistory(data);
+  } catch (e) { console.error(e); }
+}
+
+function renderStats() {
+  const s = state.stats;
+  if (!s) return;
+  const inst  = s.by_type.install || { count: 0, qty: 0 };
+  const svc   = s.by_type.service || { count: 0, qty: 0 };
+  const fr    = s.by_type.free    || { count: 0, qty: 0 };
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat-card">
+      <div class="s-label"><i class="ti ti-packages" style="font-size:14px"></i> ทั้งหมด</div>
+      <div class="s-num">${s.total_items}</div>
+      <div class="s-sub">${s.total_qty} หน่วยรวม</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label"><span class="s-dot" style="background:var(--blue)"></span> Install</div>
+      <div class="s-num" style="color:var(--blue)">${inst.count}</div>
+      <div class="s-sub">${inst.qty} หน่วยรวม</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label"><span class="s-dot" style="background:var(--green)"></span> Service</div>
+      <div class="s-num" style="color:var(--green)">${svc.count}</div>
+      <div class="s-sub">${svc.qty} หน่วยรวม</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label"><span class="s-dot" style="background:var(--amber)"></span> Free</div>
+      <div class="s-num" style="color:var(--amber)">${fr.count}</div>
+      <div class="s-sub">${fr.qty} หน่วยรวม</div>
+    </div>
+    <div class="stat-card">
+      <div class="s-label"><span class="s-dot" style="background:var(--red)"></span> ใกล้หมด/หมด</div>
+      <div class="s-num" style="color:var(--red)">${s.low_stock}</div>
+      <div class="s-sub">ต้องดำเนินการ</div>
+    </div>`;
+}
+
+function renderFilterBar() {
+  const s = state.stats;
+  const counts = s ? {
+    all:     s.total_items,
+    install: (s.by_type.install||{count:0}).count,
+    service: (s.by_type.service||{count:0}).count,
+    free:    (s.by_type.free||{count:0}).count,
+    low:     s.low_stock,
+  } : { all:0, install:0, service:0, free:0, low:0 };
+
+  const tabs = [
+    { key:'all',     label:'ทั้งหมด' },
+    { key:'install', label:'Install' },
+    { key:'service', label:'Service' },
+    { key:'free',    label:'Free' },
+    { key:'low',     label:'ใกล้หมด/หมด' },
+  ];
+  document.getElementById('filterTabs').innerHTML = tabs.map(t =>
+    `<button class="ftab ${state.filter===t.key?'active':''}" onclick="setFilter('${t.key}')">
+      ${t.label} <span class="cnt">${counts[t.key]}</span>
+    </button>`).join('');
+}
+
+function renderTable() {
+  const rows = state.items;
+  if (!rows.length) {
+    document.getElementById('tableBody').innerHTML =
+      `<tr class="empty-row"><td colspan="7"><i class="ti ti-inbox"></i>ไม่พบรายการ</td></tr>`;
+    return;
+  }
+  document.getElementById('tableBody').innerHTML = rows.map(item => {
+    const isFree = item.type === 'free';
+    const isLow  = item.qty <= 2;
+    const serials = Array.isArray(item.serials) ? item.serials : [];
+    const snHtml = !isFree
+      ? `<div class="serial-wrap">${serials.map(s=>`<span class="stag">${s}</span>`).join('')}
+           <button class="btn-add-sn" onclick="openSnModal(${item.id})"><i class="ti ti-plus"></i> SN</button>
+         </div>`
+      : `<span style="color:var(--hint);font-size:11px">—</span>`;
+    return `<tr>
+      <td><div class="item-name">${item.name}</div><div class="item-sku">${item.sku||''}</div></td>
+      <td><span class="badge b-${item.type}">
+        <i class="ti ti-${item.type==='install'?'tool':item.type==='service'?'settings':'gift'}" style="font-size:11px"></i>
+        ${item.type==='install'?'Install':item.type==='service'?'Service':'Free'}
+      </span></td>
+      <td style="color:var(--muted);font-size:12px">${item.category||'—'}</td>
+      <td style="text-align:center">
+        <div class="qty-ctrl">
+          <button class="qbtn" onclick="quickQty(${item.id},-1)">−</button>
+          <span class="qval">${item.qty}</span>
+          <button class="qbtn" onclick="quickQty(${item.id},1)">+</button>
+        </div>
+        <div style="font-size:10px;color:var(--hint);margin-top:3px">${item.unit||''}</div>
+      </td>
+      <td>${snHtml}</td>
+      <td style="text-align:center"><span class="badge ${isLow?'b-low':'b-ok'}">${isLow?'ใกล้หมด':'มีสินค้า'}</span></td>
+      <td>
+        <div class="td-actions">
+          <button class="btn btn-warn btn-xs" onclick="openUseModal(${item.id})"><i class="ti ti-arrow-up-right"></i> นำออก</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteItem(${item.id})"><i class="ti ti-trash"></i></button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderHistory(logs) {
+  const el = document.getElementById('histList');
+  if (!logs.length) { el.innerHTML = `<p style="text-align:center;color:var(--hint);padding:2rem">ยังไม่มีประวัติ</p>`; return; }
+  const dotColor = { install: 'var(--blue)', service: 'var(--green)', free: 'var(--amber)' };
+  el.innerHTML = logs.map(l => `
+    <div class="hist-item">
+      <div class="hist-dot" style="background:${dotColor[l.item_type]||'var(--muted)'}"></div>
+      <div class="hist-body">
+        <div class="hist-name">${l.item_name}</div>
+        <div class="hist-meta">
+          <span class="badge b-${l.item_type}" style="font-size:10px;padding:1px 6px">
+            ${l.item_type==='install'?'Install':l.item_type==='service'?'Service':'Free'}
+          </span>
+          นำออก ${l.qty} หน่วย
+          ${l.serials?.length ? '· SN: '+l.serials.join(', ') : ''}
+          ${l.note ? `· ${l.note}` : ''}
+        </div>
+      </div>
+      <div class="hist-time">${l.used_at}</div>
+    </div>`).join('');
+}
+
+function updateSidebar() {
+  const s = state.stats;
+  if (!s) return;
+  document.getElementById('sidebarItemCount').textContent = s.total_items;
+  document.getElementById('sidebarInstall').textContent  = (s.by_type.install||{count:0}).count;
+  document.getElementById('sidebarService').textContent  = (s.by_type.service||{count:0}).count;
+  document.getElementById('sidebarFree').textContent     = (s.by_type.free||{count:0}).count;
+  document.getElementById('sidebarLow').textContent      = s.low_stock;
+}
+
+function setPage(page) {
+  state.page = page;
+  document.getElementById('pageTitle').textContent =
+    page==='dashboard'?'แดชบอร์ด':page==='items'?'สินค้าทั้งหมด':'ประวัตินำออก';
+  renderPage();
+}
+
+function setFilterAndPage(type) {
+  state.filter = type;
+  setPage('items');
+}
+
+function setFilter(f) {
+  state.filter = f;
+  loadItems();
+  renderFilterBar();
+}
+
+function renderPage() {
+  const c = document.getElementById('mainContent');
+  if (state.page === 'history') {
+    c.innerHTML = `
+      <div class="filter-bar" style="margin-bottom:16px">
+        <select id="histTypeFilter" style="height:32px;padding:0 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:12px;outline:none" onchange="loadHistoryPage()">
+          <option value="">ทุกประเภท</option>
+          <option value="install">Install</option>
+          <option value="service">Service</option>
+          <option value="free">Free</option>
+        </select>
+      </div>
+      <div class="table-wrap" style="padding:16px">
+        <div class="hist-list" id="histPageList"></div>
+      </div>`;
+    loadHistoryPage();
+    return;
+  }
+  c.innerHTML = `
+    <div class="stat-grid" id="statGrid"></div>
+    <div class="filter-bar" id="filterBarWrap">
+      <div class="ftabs" id="filterTabs"></div>
+      <div class="selects">
+        <select id="sortSel" onchange="state.sort=this.value;loadItems()">
+          <option value="name">เรียง: ชื่อ</option>
+          <option value="qty_asc">จำนวน น้อย→มาก</option>
+          <option value="qty_desc">จำนวน มาก→น้อย</option>
+        </select>
+      </div>
+      <span class="cnt-label" id="cntLabel"></span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>
+          <th style="width:26%">ชื่อสินค้า</th>
+          <th style="width:11%">ประเภท</th>
+          <th style="width:11%">หมวดหมู่</th>
+          <th style="width:12%;text-align:center">คงเหลือ / หน่วย</th>
+          <th style="width:22%">Serial Numbers</th>
+          <th style="width:10%;text-align:center">สถานะ</th>
+          <th style="width:8%;text-align:right">จัดการ</th>
+        </tr></thead>
+        <tbody id="tableBody"><tr class="empty-row"><td colspan="7"><i class="ti ti-loader-2" style="animation:spin 1s linear infinite"></i> กำลังโหลด...</td></tr></tbody>
+      </table>
+    </div>`;
+  renderStats();
+  renderFilterBar();
+  loadItems();
+}
+
+async function loadHistoryPage() {
+  const type = document.getElementById('histTypeFilter')?.value || '';
+  const params = new URLSearchParams({ limit: 500 });
+  if (type) params.set('type', type);
+  try {
+    const { data } = await api(`/logs?${params}`);
+    const el = document.getElementById('histPageList');
+    if (!el) return;
+    if (!data.length) { el.innerHTML = `<p style="text-align:center;color:var(--hint);padding:2rem">ยังไม่มีประวัติ</p>`; return; }
+    const dotColor = { install:'var(--blue)',service:'var(--green)',free:'var(--amber)' };
+    el.innerHTML = data.map(l=>`
+      <div class="hist-item">
+        <div class="hist-dot" style="background:${dotColor[l.item_type]||'var(--muted)'}"></div>
+        <div class="hist-body">
+          <div class="hist-name">${l.item_name}</div>
+          <div class="hist-meta">
+            <span class="badge b-${l.item_type}" style="font-size:10px;padding:1px 6px">
+              ${l.item_type==='install'?'Install':l.item_type==='service'?'Service':'Free'}
+            </span>
+            นำออก ${l.qty} หน่วย
+            ${l.serials?.length?'· SN: '+l.serials.join(', '):''}
+            ${l.note?`· ${l.note}`:''}
+          </div>
+        </div>
+        <div class="hist-time">${l.used_at}</div>
+      </div>`).join('');
+  } catch (e) { console.error(e); }
+}
+
+async function quickQty(id, delta) {
+  try {
+    const { data } = await api(`/items/${id}/qty`, {
+      method: 'PATCH',
+      body: JSON.stringify({ delta }),
+    });
+    const item = state.items.find(i=>i.id===id);
+    if (item) item.qty = data.qty;
+    renderTable();
+    loadStats();
+  } catch (e) { showToast('เกิดข้อผิดพลาด', 'error'); }
+}
+
+async function deleteItem(id) {
+  if (!confirm('ยืนยันการลบสินค้านี้?')) return;
+  try {
+    await api(`/items/${id}`, { method: 'DELETE' });
+    showToast('ลบสินค้าแล้ว');
+    loadItems(); loadStats();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+function openAddModal() {
+  state.editId = null;
+  state.formSns = [];
+  document.getElementById('addModalTitle').textContent = 'เพิ่มสินค้าใหม่';
+  ['fName','fSku','fCat','fUnit','fSnInput'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('fQty').value = 1;
+  document.getElementById('fType').value = 'install';
+  document.getElementById('fSnTags').innerHTML = '';
+  document.getElementById('snFormGroup').style.display = 'block';
+  document.getElementById('addOverlay').classList.add('open');
+}
+
+function onTypeChange() {
+  document.getElementById('snFormGroup').style.display =
+    document.getElementById('fType').value === 'free' ? 'none' : 'block';
+}
+
+function addFormSn() {
+  const v = document.getElementById('fSnInput').value.trim();
+  if (!v) return;
+  if (!state.formSns.includes(v)) state.formSns.push(v);
+  document.getElementById('fSnInput').value = '';
+  renderFormSnTags();
+}
+
+function removeFormSn(idx) { state.formSns.splice(idx,1); renderFormSnTags(); }
+
+function renderFormSnTags() {
+  document.getElementById('fSnTags').innerHTML = state.formSns.map((s,i)=>
+    `<span class="sn-tag">${s}<span class="rm" onclick="removeFormSn(${i})">×</span></span>`
+  ).join('');
+}
+
+async function saveItem() {
+  const name = document.getElementById('fName').value.trim();
+  if (!name) { document.getElementById('fName').focus(); return; }
+  const body = {
+    name, sku: document.getElementById('fSku').value.trim(),
+    type: document.getElementById('fType').value,
+    category: document.getElementById('fCat').value.trim(),
+    qty: parseInt(document.getElementById('fQty').value)||0,
+    unit: document.getElementById('fUnit').value.trim(),
+    serials: state.formSns,
+  };
+  try {
+    await api('/items', { method: 'POST', body: JSON.stringify(body) });
+    showToast('เพิ่มสินค้าแล้ว');
+    closeModal('addOverlay');
+    loadItems(); loadStats();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function openSnModal(id) {
+  state.snTargetId = id;
+  const { data } = await api(`/items/${id}`);
+  document.getElementById('snModalTitle').textContent = `Serial — ${data.name}`;
+  document.getElementById('snInput').value = '';
+  const snsInStock = (data.serials||[]).filter(s=>s.status==='in_stock');
+  document.getElementById('snModalTags').innerHTML = snsInStock.map(s=>
+    `<span class="sn-tag">${s.serial}<span class="rm" onclick="removeSnInline(${s.id})">×</span></span>`
+  ).join('');
+  document.getElementById('snOverlay').classList.add('open');
+}
+
+async function addSnInline() {
+  const v = document.getElementById('snInput').value.trim();
+  if (!v) return;
+  try {
+    const { data } = await api(`/items/${state.snTargetId}/serials`, { method:'POST', body: JSON.stringify({ serial: v }) });
+    document.getElementById('snInput').value = '';
+    const tags = document.getElementById('snModalTags');
+    const span = document.createElement('span');
+    span.className = 'sn-tag';
+    span.innerHTML = `${data.serial}<span class="rm" onclick="removeSnInline(${data.id})">×</span>`;
+    tags.appendChild(span);
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function removeSnInline(snId) {
+  try {
+    await api(`/items/${state.snTargetId}/serials/${snId}`, { method:'DELETE' });
+    document.querySelector(`.sn-tag .rm[onclick="removeSnInline(${snId})"]`)?.closest('.sn-tag')?.remove();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+async function openUseModal(id) {
+  state.useTargetId = id;
+  const { data } = await api(`/items/${id}`);
+  document.getElementById('useItemName').textContent = `${data.name} (คงเหลือ: ${data.qty} ${data.unit||''})`;
+  document.getElementById('uQty').value = 1;
+  document.getElementById('uQty').max   = data.qty;
+  document.getElementById('uNote').value = '';
+  const snSec = document.getElementById('uSnSection');
+  const snsInStock = (data.serials||[]).filter(s=>s.status==='in_stock');
+  if (data.type !== 'free' && snsInStock.length > 0) {
+    snSec.innerHTML = `<div class="form-group"><label>เลือก Serial ที่นำออก</label><div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px">
+      ${snsInStock.map(s=>`<label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;font-family:var(--mono)">
+        <input type="checkbox" value="${s.id}" style="width:auto"> ${s.serial}
+      </label>`).join('')}
+    </div></div>`;
+  } else snSec.innerHTML = '';
+  document.getElementById('useOverlay').classList.add('open');
+}
+
+async function confirmUse() {
+  const qty = parseInt(document.getElementById('uQty').value)||1;
+  const note = document.getElementById('uNote').value.trim();
+  const checks = document.querySelectorAll('#uSnSection input:checked');
+  const serial_ids = Array.from(checks).map(c=>parseInt(c.value));
+  try {
+    await api(`/items/${state.useTargetId}/use`, { method:'POST', body: JSON.stringify({ qty, serial_ids, note }) });
+    showToast('นำสินค้าออกแล้ว');
+    closeModal('useOverlay');
+    loadItems(); loadStats();
+  } catch (e) { showToast(e.message, 'error'); }
+}
+
+function openHistModal() {
+  document.getElementById('histTypeFilter').value = '';
+  loadHistory();
+  document.getElementById('histOverlay').classList.add('open');
+}
+
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
+});
+
+function updateClock() {
+  const el = document.getElementById('sidebarTime');
+  if (el) el.textContent = new Date().toLocaleTimeString('th-TH', { hour:'2-digit', minute:'2-digit', second:'2-digit' });
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+async function init() {
+  await loadStats();
+  renderPage();
+}
+init();
+</script>
+</body>
+</html>
