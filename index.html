@@ -338,9 +338,6 @@ tr:hover td { background: rgba(255,255,255,.02); }
         <i class="ti ti-search"></i>
         <input type="text" id="searchInput" placeholder="ค้นหาชื่อ, SKU, Serial..." oninput="debounceLoad()" />
       </div>
-      <button class="btn btn-ghost" onclick="openHistModal()">
-        <i class="ti ti-history"></i> ประวัตินำออก
-      </button>
       <button class="btn btn-ghost" onclick="openImportModal()">
         <i class="ti ti-history"></i> ประวัตินำเข้า
       </button>
@@ -349,6 +346,9 @@ tr:hover td { background: rgba(255,255,255,.02); }
       </button>
       <button class="btn btn-primary" onclick="openAddModal()">
         <i class="ti ti-plus"></i> เพิ่มสินค้า
+      </button>
+      <button class="btn btn-warn" onclick="openUseModal()">
+        <i class="ti ti-arrow-up-right"></i> นำสินค้าออก
       </button>
     </div>
 
