@@ -40,6 +40,13 @@ router.get('/stats', async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
+router.get('/import-logs', async (req, res) => {
+  try {
+    const logs = await db.all(`SELECT * FROM import_logs ORDER BY imported_at DESC LIMIT 200`);
+    res.json({ success: true, data: logs });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
 router.get('/:id', async (req, res) => {
   try {
     const item = await db.get(`SELECT * FROM items WHERE id=?`, [req.params.id]);
@@ -99,7 +106,6 @@ router.delete('/:id', async (req, res) => {
 });
 
 router.post('/:id/serials', async (req, res) => {
-  const db = getDb();
   try {
     const { serial } = req.body;
     if (!serial) return res.status(400).json({ success: false, error: 'serial is required' });
@@ -140,12 +146,6 @@ router.post('/:id/use', async (req, res) => {
     }
     await db.run(`UPDATE items SET qty=qty-?,updated_at=datetime('now','localtime') WHERE id=?`, [parseInt(qty), item.id]);
     res.json({ success: true, data: { log_id: logId, qty_used: qty, serials_used: usedSerials } });
-  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
-});
-router.get('/import-logs', async (req, res) => {
-  try {
-    const logs = await db.all(`SELECT * FROM import_logs ORDER BY imported_at DESC LIMIT 200`);
-    res.json({ success: true, data: logs });
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
