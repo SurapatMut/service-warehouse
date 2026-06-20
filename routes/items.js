@@ -122,6 +122,8 @@ router.post('/:id/serials', async (req, res) => {
     const item = await db.get(`SELECT * FROM items WHERE id=?`, [req.params.id]);
     if (!item) return res.status(404).json({ success: false, error: 'Item not found' });
     if (item.type === 'free') return res.status(400).json({ success: false, error: 'Free items do not use serial numbers' });
+    const dup = await db.get(`SELECT id FROM serials WHERE serial=?`, [serial.trim()]);
+    if (dup) return res.status(400).json({ success: false, error: 'Serial นี้มีในระบบแล้ว' });
     const r = await db.run(`INSERT INTO serials (item_id,serial) VALUES (?,?)`, [req.params.id, serial.trim()]);
     await db.run(`INSERT INTO import_logs (item_id,item_name,item_type,qty,serial) VALUES (?,?,?,?,?)`,
       [item.id, item.name, item.type, 1, serial.trim()]);
