@@ -820,13 +820,45 @@ function renderFormSnTags() {
 async function saveItem() {
   const name = document.getElementById('fName').value.trim();
   if (!name) { document.getElementById('fName').focus(); return; }
+  const type     = document.getElementById('fType').value;
+  const qty      = parseInt(document.getElementById('fQty').value)||0;
+  const unit     = document.getElementById('fUnit').value.trim();
+  const serials  = state.formSns;
+
+  // เช็คชื่อซ้ำจาก API (ดึงทั้งหมดมาเปรียบเทียบ)
+  const { data: allItems } = await api('/items?type=all&sort=name');
+  const existing = allItems.find(i => i.name.trim().toLowerCase() === name.toLowerCase());
+
+  if (existing) {
+    // ชื่อซ้ำ → เพิ่มแค่ SN และจำนวน ไม่สร้างรายการใหม่
+    try {
+      // เพิ่ม SN ทีละตัว
+      for (const sn of serials) {
+        await api(`/items/${existing.id}/serials`, {
+          method: 'POST',
+          body: JSON.stringify({ serial: sn })
+        });
+      }
+      // เพิ่มจำนวน (ถ้ามี SN ให้นับจาก SN ถ้าไม่มีใช้ qty)
+      const addQty = serials.length > 0 ? serials.length : qty;
+      if (addQty > 0) {
+        await api(`/items/${existing.id}/qty`, {
+          method: 'PATCH',
+          body: JSON.stringify({ delta: addQty })
+        });
+      }
+      showToast(`รวมกับ "${existing.name}" แล้ว (+${addQty})`);
+      closeModal('addOverlay');
+      loadItems(); loadStats();
+    } catch (e) { showToast(e.message, 'error'); }
+    return;
+  }
+
+  // ไม่ซ้ำ → สร้างรายการใหม่ปกติ
   const body = {
     name, sku: document.getElementById('fSku').value.trim(),
-    type: document.getElementById('fType').value,
-    category: document.getElementById('fCat').value.trim(),
-    qty: parseInt(document.getElementById('fQty').value)||0,
-    unit: document.getElementById('fUnit').value.trim(),
-    serials: state.formSns,
+    type, category: document.getElementById('fCat').value.trim(),
+    qty, unit, serials,
   };
   try {
     await api('/items', { method: 'POST', body: JSON.stringify(body) });
@@ -835,7 +867,6 @@ async function saveItem() {
     loadItems(); loadStats();
   } catch (e) { showToast(e.message, 'error'); }
 }
-
 async function openSnModal(id) {
   state.snTargetId = id;
   const { data } = await api(`/items/${id}`);
