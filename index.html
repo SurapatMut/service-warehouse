@@ -851,7 +851,7 @@ async function addSnInline() {
     const span = document.createElement('span');
     span.className = 'sn-tag';
     span.innerHTML = `${data.serial}<span class="rm" onclick="removeSnInline(${data.id})">×</span>`;
-    tags.appendChild(span);
+    tags.appendChild(span)await quickQty(state.snTargetId, 1);
   } catch (e) { showToast(e.message, 'error'); }
 }
 
