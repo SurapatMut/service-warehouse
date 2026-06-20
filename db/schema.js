@@ -52,6 +52,16 @@ async function initDb() {
     log_id INTEGER NOT NULL, serial TEXT NOT NULL
   )`);
   console.log('✅  Database initialized at', DB_PATH);
+  await run(`CREATE TABLE IF NOT EXISTS import_logs (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    item_id    INTEGER NOT NULL,
+    item_name  TEXT    NOT NULL,
+    item_type  TEXT    NOT NULL,
+    qty        INTEGER NOT NULL DEFAULT 1,
+    serial     TEXT,
+    note       TEXT,
+    imported_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  )`);
 }
 
 module.exports = { getDb, run, get, all, initDb };
