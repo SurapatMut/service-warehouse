@@ -918,10 +918,22 @@ function removeUseSerial(id) {
 
 function renderUseSerialTags() {
   const el = document.getElementById('uSnTags');
-  if (!el) return;
-  el.innerHTML = state.useSerials.map(s=>
-    `<span class="sn-tag">${s.serial}<span class="rm" onclick="removeUseSerial(${s.id})">×</span></span>`
-  ).join('');
+  if (el) {
+    el.innerHTML = state.useSerials.map(s=>
+      `<span class="sn-tag">${s.serial}<span class="rm" onclick="removeUseSerial(${s.id})">×</span></span>`
+    ).join('');
+  }
+  updateUseConfirmBtn();
+}
+
+function updateUseConfirmBtn() {
+  const btn = document.getElementById('btnConfirmUse');
+  if (!btn) return;
+  const isFree = state.useItemData?.type === 'free';
+  const blocked = !isFree && state.useSerials.length === 0;
+  btn.disabled = blocked;
+  btn.style.opacity = blocked ? '.5' : '';
+  btn.style.cursor = blocked ? 'not-allowed' : '';
 }
 
 async function confirmUse() {
