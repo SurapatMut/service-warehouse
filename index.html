@@ -874,8 +874,70 @@ async function confirmUse() {
 
 function openHistModal() {
   document.getElementById('histTypeFilter').value = '';
-  loadHistory();
   document.getElementById('histOverlay').classList.add('open');
+  
+  // เพิ่ม search box
+  const el = document.getElementById('histList');
+  const modal = el.closest('.modal');
+  if (!modal.querySelector('.hist-search')) {
+    const searchBox = document.createElement('div');
+    searchBox.className = 'hist-search';
+    searchBox.innerHTML = `
+      <div class="search-box" style="margin-bottom:14px;min-width:unset;width:100%">
+        <i class="ti ti-search"></i>
+        <input type="text" placeholder="ค้นหา Serial, ชื่อสินค้า, หมายเหตุ..." oninput="filterHistList(this.value)" />
+      </div>`;
+    const filterBar = modal.querySelector('.filter-bar');
+    filterBar.after(searchBox);
+  }
+  
+  loadHistory();
+}
+
+async function loadHistory() {
+  const type = document.getElementById('histTypeFilter')?.value || '';
+  const params = new URLSearchParams({ limit: 200 });
+  if (type) params.set('type', type);
+  try {
+    const { data } = await api(`/logs?${params}`);
+    window._histData = data;
+    // clear search box
+    const input = document.querySelector('.hist-search input');
+    if (input) input.value = '';
+    renderHistory(data);
+  } catch (e) { console.error(e); }
+}
+
+function filterHistList(q) {
+  if (!window._histData) return;
+  const filtered = q.trim()
+    ? window._histData.filter(l =>
+        l.item_name?.toLowerCase().includes(q.toLowerCase()) ||
+        l.serials?.some(s => s.toLowerCase().includes(q.toLowerCase())) ||
+        l.note?.toLowerCase().includes(q.toLowerCase())
+      )
+    : window._histData;
+  renderHistory(filtered);
+}
+
+function renderHistory(logs) {
+  const el = document.getElementById('histList');
+  if (!logs.length) { el.innerHTML = `<p style="text-align:center;color:var(--hint);padding:2rem">ไม่พบรายการ</p>`; return; }
+  const dotColor = { install: 'var(--blue)', service: 'var(--green)', free: 'var(--amber)' };
+  el.innerHTML = logs.map(l => `
+    <div class="hist-item">
+      <div class="hist-dot" style="background:${dotColor[l.item_type]||'var(--muted)'}"></div>
+      <div class="hist-body">
+        <div class="hist-name">${l.item_name}</div>
+        <div class="hist-meta">
+          <span class="badge b-${l.item_type}" style="font-size:10px;padding:1px 6px">${l.item_type==='install'?'Install':l.item_type==='service'?'Service':'Free'}</span>
+          นำออก ${l.qty} หน่วย
+          ${l.serials?.length ? '· SN: '+l.serials.join(', ') : ''}
+          ${l.note ? `· <span style="color:var(--muted)">${l.note}</span>` : ''}
+        </div>
+      </div>
+      <div class="hist-time">${l.used_at}</div>
+    </div>`).join('');
 }
 
 async function openImportModal() {
