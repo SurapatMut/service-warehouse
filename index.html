@@ -940,6 +940,10 @@ async function confirmUse() {
   const qty = parseInt(document.getElementById('uQty').value)||1;
   const note = document.getElementById('uNote').value.trim();
   const serial_ids = state.useSerials.map(s=>s.id);
+  if (state.useItemData?.type !== 'free' && serial_ids.length === 0) {
+    showToast('กรุณาเพิ่ม Serial Number ที่นำออกก่อน', 'error');
+    return;
+  }
   try {
     await api(`/items/${state.useTargetId}/use`, { method:'POST', body: JSON.stringify({ qty, serial_ids, note }) });
     showToast('นำสินค้าออกแล้ว');
