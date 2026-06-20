@@ -228,6 +228,7 @@ tr:hover td { background: rgba(255,255,255,.02); }
       </div>
       <button class="btn btn-ghost" onclick="openHistModal()"><i class="ti ti-history"></i> ประวัตินำออก</button>
       <button class="btn btn-ghost" onclick="openImportModal()"><i class="ti ti-download"></i> ประวัตินำเข้า</button>
+      <button class="btn btn-ghost" id="btnToggleActions" onclick="toggleActions()"><i class="ti ti-lock-open"></i> ล็อคการจัดการ</button>
       <button class="btn btn-warn" onclick="openQuickUseModal()"><i class="ti ti-arrow-up-right"></i> นำสินค้าออก</button>
       <button class="btn btn-primary" onclick="openAddModal()"><i class="ti ti-plus"></i> เพิ่มสินค้า</button>
     </div>
@@ -402,6 +403,7 @@ let state = {
   editId: null, useTargetId: null, snTargetId: null,
   formSns: [],
   quickUseSerials: [], quickUseItemData: null,
+  showActions: true, // เพิ่มบรรทัดนี้
 };
 let debTimer = null;
 
@@ -520,13 +522,15 @@ function renderTable() {
       <td>${snHtml}</td>
       <td style="text-align:center"><span class="badge ${isLow?'b-low':'b-ok'}">${isLow?'ใกล้หมด':'มีสินค้า'}</span></td>
       <td><div class="td-actions">
-        <button class="btn btn-warn btn-xs" onclick="openUseModal(${item.id})"><i class="ti ti-arrow-up-right"></i> นำออก</button>
-        <button class="btn btn-danger btn-xs" onclick="deleteItem(${item.id})" title="ลบสินค้า">
-  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-  </svg>
-</button>
-      </div></td>
+  ${state.showActions ? `
+    <button class="btn btn-warn btn-xs" onclick="openUseModal(${item.id})"><i class="ti ti-arrow-up-right"></i> นำออก</button>
+    <button class="btn btn-danger btn-xs" onclick="deleteItem(${item.id})" title="ลบสินค้า">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
+      </svg>
+    </button>
+  ` : `<span style="font-size:11px;color:var(--hint)">—</span>`}
+</div></td>
     </tr>`;
   }).join('');
 }
@@ -650,6 +654,16 @@ async function deleteItem(id) {
     showToast('ลบสินค้าแล้ว');
     loadItems(); loadStats();
   } catch (e) { showToast(e.message, 'error'); }
+}
+
+  function toggleActions() {
+  state.showActions = !state.showActions;
+  const btn = document.getElementById('btnToggleActions');
+  btn.innerHTML = state.showActions
+    ? '<i class="ti ti-lock-open"></i> ล็อคการจัดการ'
+    : '<i class="ti ti-lock"></i> ปลดล็อคการจัดการ';
+  btn.style.color = state.showActions ? '' : 'var(--red)';
+  renderTable();
 }
 
 function openAddModal() {
