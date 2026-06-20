@@ -98,17 +98,16 @@ router.delete('/:id', async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
-router.post('/:id/serials', async (req, res) => {
-  try {
-    const { serial } = req.body;
-    if (!serial) return res.status(400).json({ success: false, error: 'serial is required' });
-    const item = await db.get(`SELECT * FROM items WHERE id=?`, [req.params.id]);
-    if (!item) return res.status(404).json({ success: false, error: 'Item not found' });
-    if (item.type === 'free') return res.status(400).json({ success: false, error: 'Free items do not use serial numbers' });
-    const r = await db.run(`INSERT INTO serials (item_id,serial) VALUES (?,?)`, [req.params.id, serial.trim()]);
-    res.status(201).json({ success: true, data: { id: r.lastID, serial: serial.trim(), status: 'in_stock' } });
-  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
-});
+await run(`CREATE TABLE IF NOT EXISTS import_logs (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    item_id    INTEGER NOT NULL,
+    item_name  TEXT    NOT NULL,
+    item_type  TEXT    NOT NULL,
+    qty        INTEGER NOT NULL DEFAULT 1,
+    serial     TEXT,
+    note       TEXT,
+    imported_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
+  )`);
 
 router.delete('/:id/serials/:snId', async (req, res) => {
   try {
