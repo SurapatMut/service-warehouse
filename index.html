@@ -828,6 +828,11 @@ async function saveItem() {
   const unit     = document.getElementById('fUnit').value.trim();
   const serials  = state.formSns;
 
+  // บังคับใส่ SN ถ้าไม่ใช่ Free
+if (type !== 'free' && serials.length === 0) {
+  showToast('กรุณาเพิ่ม Serial Number อย่างน้อย 1 รายการ', 'error');
+  return;
+}
   // เช็คชื่อซ้ำจาก API (ดึงทั้งหมดมาเปรียบเทียบ)
   const { data: allItems } = await api('/items?type=all&sort=name');
   const existing = allItems.find(i => 
