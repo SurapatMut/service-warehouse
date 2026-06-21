@@ -67,14 +67,13 @@ router.post('/', async (req, res) => {
       for (const s of serials) {
         if (s.trim()) {
           const existSn = await db.get(`SELECT id FROM serials WHERE serial=? AND item_id=? AND status='in_stock'`, [s.trim(), itemId]);
-            if (!existSn) {
-              await db.run(`INSERT INTO serials (item_id,serial) VALUES (?,?)`, [itemId, s.trim()]);
-              await db.run(`INSERT INTO import_logs (item_id,item_name,item_type,qty,serial) VALUES (?,?,?,?,?)`,
-                [itemId, name, type, 1, s.trim()]);
+          if (!existSn) {
+            await db.run(`INSERT INTO serials (item_id,serial) VALUES (?,?)`, [itemId, s.trim()]);
+            await db.run(`INSERT INTO import_logs (item_id,item_name,item_type,qty,serial) VALUES (?,?,?,?,?)`,
+              [itemId, name, type, 1, s.trim()]);
+          }
+        }
       }
-    }
-  }
-}
     } else if (type === 'free' && parseInt(qty) > 0) {
       await db.run(`INSERT INTO import_logs (item_id,item_name,item_type,qty,serial) VALUES (?,?,?,?,?)`,
         [itemId, name, type, parseInt(qty), null]);
