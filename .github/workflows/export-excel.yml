@@ -20,12 +20,12 @@ jobs:
       - name: Download Export Out
         run: |
           curl -L "https://service-warehouse-production.up.railway.app/api/logs/export/out" \
-            -o "exports/history_export_out_$(date +'%Y-%m-%d').xlsx"
+            -o "exports/history_export_out.xlsx"
 
       - name: Download Export In
         run: |
           curl -L "https://service-warehouse-production.up.railway.app/api/logs/export/in" \
-            -o "exports/history_export_in_$(date +'%Y-%m-%d').xlsx"
+            -o "exports/history_export_in.xlsx"
 
       - name: Commit Excel files
         run: |
