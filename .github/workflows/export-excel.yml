@@ -1,0 +1,30 @@
+name: Export Excel History
+
+on:
+  schedule:
+    - cron: '0 18 * * *'  # ทุกวันตี 1 (เวลาไทย UTC+7)
+  workflow_dispatch:        # กดรันเองได้ด้วย
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Export Out
+        run: |
+          curl -L "https://service-warehouse-production.up.railway.app/api/logs/export/out" \
+            -o "exports/history_export_out_$(date +'%Y-%m-%d').xlsx"
+
+      - name: Download Export In
+        run: |
+          curl -L "https://service-warehouse-production.up.railway.app/api/logs/export/in" \
+            -o "exports/history_export_in_$(date +'%Y-%m-%d').xlsx"
+
+      - name: Commit Excel files
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add exports/
+          git diff --staged --quiet || git commit -m "Auto export Excel $(date +'%Y-%m-%d')"
+          git push
