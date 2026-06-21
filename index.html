@@ -505,7 +505,7 @@ function renderTable() {
     const isLow  = item.qty <= 2;
     const serials = Array.isArray(item.serials) ? item.serials : [];
     const snHtml = !isFree
-      ? `<div class="serial-wrap">${serials.map(s=>`<span class="stag">${s}</span>`).join('')}<button class="btn-add-sn" onclick="openSnModal(${item.id})"><i class="ti ti-plus"></i> SN</button></div>`
+      ? `<div class="serial-wrap">${serials.map(s=>`<span class="stag">${s}</span>`).join('')}<button class="btn-add-sn" onclick="openSnModal(${item.id})" style="border:none;background:none;color:var(--hint)"><i class="ti ti-plus"></i> SN</button></div>`
       : `<span style="color:var(--hint);font-size:11px">—</span>`;
     return `<tr>
       <td><div class="item-name">${item.name}</div><div class="item-sku">${item.sku||''}</div></td>
