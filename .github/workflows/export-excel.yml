@@ -2,14 +2,17 @@ name: Export Excel History
 
 on:
   schedule:
-    - cron: '0 18 * * *'  # ทุกวันตี 1 (เวลาไทย UTC+7)
-  workflow_dispatch:        # กดรันเองได้ด้วย
+    - cron: '0 18 * * *'
+  workflow_dispatch:
 
 jobs:
   export:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Create exports folder
+        run: mkdir -p exports
 
       - name: Download Export Out
         run: |
