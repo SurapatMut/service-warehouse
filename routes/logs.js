@@ -40,3 +40,5 @@ router.get('/export/in', async (req, res) => {
     res.send('\uFEFF' + csv);
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
+
+module.exports = router;
