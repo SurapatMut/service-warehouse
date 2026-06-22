@@ -963,13 +963,14 @@ function filterQuickUseItems() {
     return;
   }
 
-  const matched = state.quickUseAllItems.filter(i => {
+    const matched = state.quickUseAllItems.filter(i => {
     const nameMatch = i.name.toLowerCase().includes(q);
-    const snMatch = (i.serials||[]).some(s =>
+    const skuMatch  = (i.sku||'').toLowerCase().includes(q);  // ✅ เพิ่มบรรทัดนี้
+    const snMatch   = (i.serials||[]).some(s =>
       (s.status === undefined || s.status === 'in_stock') &&
       (s.serial||s).toLowerCase().includes(q)
     );
-    return nameMatch || snMatch;
+    return nameMatch || skuMatch || snMatch;  // ✅ เพิ่ม skuMatch ตรงนี้
   });
 
   renderQuItemDropdown(matched, q);
