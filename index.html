@@ -454,7 +454,7 @@ function renderTable() {
   if (!el) return;
   const rows = state.items;
   if (!rows.length) {
-    el.innerHTML = `<tr class="empty-row"><td colspan="7"><i class="ti ti-inbox"></i>ไม่พบรายการ</td></tr>`;
+    el.innerHTML = `<tr class="empty-row"><td colspan="8"><i class="ti ti-inbox"></i>ไม่พบรายการ</td></tr>`;
     return;
   }
   el.innerHTML = rows.map(item => {
@@ -465,7 +465,8 @@ function renderTable() {
       ? `<div class="serial-wrap">${serials.map(s=>`<span class="stag">${s}</span>`).join('')}</div>`
       : `<span style="color:var(--hint);font-size:11px">—</span>`;
     return `<tr>
-      <td><div class="item-name">${item.name}</div><div class="item-sku">${item.sku||''}</div></td>
+      <td><div class="item-name">${item.name}</div></td>
+      <td><div class="item-sku" style="font-family:var(--mono);font-size:12px;color:var(--muted)">${item.sku||'—'}</div></td>
       <td><span class="badge b-${item.type}">${item.type==='install'?'Install':item.type==='service'?'Service':'Free'}</span></td>
       <td style="color:var(--muted);font-size:12px">${item.category||'—'}</td>
       <td style="text-align:center">
@@ -556,6 +557,7 @@ function renderPage() {
       <table>
         <thead><tr>
           <th style="width:26%">ชื่อสินค้า</th>
+          <th style="width:10%">รหัสสินค้า</th>
           <th style="width:11%">ประเภท</th>
           <th style="width:11%">หมวดหมู่</th>
           <th style="width:12%;text-align:center">คงเหลือ / หน่วย</th>
