@@ -2,6 +2,25 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db/schema');
 
+router.get('/', async (req, res) => {
+  try {
+    const { type, limit = 200 } = req.query;
+    let sql = `
+      SELECT l.*, ARRAY_AGG(us.serial) FILTER (WHERE us.serial IS NOT NULL) AS serials
+      FROM usage_logs l LEFT JOIN usage_serials us ON us.log_id = l.id
+    `;
+    const params = [];
+    if (type) {
+      sql += ` WHERE l.item_type = $1`;
+      params.push(type);
+    }
+    sql += ` GROUP BY l.id ORDER BY l.used_at DESC LIMIT $${params.length + 1}`;
+    params.push(parseInt(limit));
+    const { rows } = await db.query(sql, params);
+    res.json({ success: true, data: rows });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+});
+
 router.get('/export/out', async (req, res) => {
   try {
     const { rows: logs } = await db.query(`
