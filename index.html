@@ -38,63 +38,28 @@ a { color: inherit; text-decoration: none; }
 button { font-family: var(--font); cursor: pointer; border: none; }
 input, select, textarea { font-family: var(--font); }
 .layout { display: flex; min-height: 100vh; }
-.sidebar {
-  width: 220px; flex-shrink: 0;
-  background: var(--surface);
-  border-right: 1px solid var(--border);
-  display: flex; flex-direction: column;
-  position: sticky; top: 0; height: 100vh;
-}
+.sidebar { width: 220px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
 .sidebar-logo { padding: 20px 18px 16px; border-bottom: 1px solid var(--border); }
-.sidebar-logo .icon {
-  width: 38px; height: 38px; border-radius: 10px;
-  background: linear-gradient(135deg, #2a5cff 0%, #4a9eff 100%);
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 18px; margin-bottom: 10px;
-}
+.sidebar-logo .icon { width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #2a5cff 0%, #4a9eff 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 18px; margin-bottom: 10px; }
 .sidebar-logo h1 { font-size: 15px; font-weight: 500; }
 .sidebar-logo p  { font-size: 11px; color: var(--muted); margin-top: 2px; }
 .sidebar-nav { padding: 12px 10px; flex: 1; }
 .nav-label { font-size: 10px; color: var(--hint); text-transform: uppercase; letter-spacing: .08em; padding: 8px 8px 4px; }
-.nav-item {
-  display: flex; align-items: center; gap: 9px;
-  padding: 9px 10px; border-radius: var(--radius-sm);
-  color: var(--muted); font-size: 13px; cursor: pointer;
-  transition: background .15s, color .15s;
-}
+.nav-item { display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: var(--radius-sm); color: var(--muted); font-size: 13px; cursor: pointer; transition: background .15s, color .15s; }
 .nav-item:hover { background: var(--surface2); color: var(--text); }
 .nav-item.active { background: var(--blue-dim); color: var(--blue); }
 .nav-item i { font-size: 17px; }
-.nav-item .cnt {
-  margin-left: auto; font-size: 10px; padding: 1px 6px;
-  border-radius: 99px; background: var(--surface2); color: var(--muted);
-}
+.nav-item .cnt { margin-left: auto; font-size: 10px; padding: 1px 6px; border-radius: 99px; background: var(--surface2); color: var(--muted); }
 .sidebar-footer { padding: 12px; border-top: 1px solid var(--border); font-size: 11px; color: var(--hint); text-align: center; }
 .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
-.topbar {
-  display: flex; align-items: center; gap: 10px;
-  padding: 14px 24px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--border);
-  position: sticky; top: 0; z-index: 10;
-}
+.topbar { display: flex; align-items: center; gap: 10px; padding: 14px 24px; background: var(--surface); border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; }
 .topbar-title { font-size: 15px; font-weight: 500; flex: 1; }
-.search-box {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: var(--radius-sm); padding: 0 12px; height: 36px; min-width: 240px;
-  transition: border-color .15s;
-}
+.search-box { display: flex; align-items: center; gap: 8px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 0 12px; height: 36px; min-width: 240px; transition: border-color .15s; }
 .search-box:focus-within { border-color: var(--blue); }
 .search-box i { color: var(--muted); font-size: 15px; }
 .search-box input { background: none; border: none; color: var(--text); font-size: 13px; width: 100%; outline: none; }
 .search-box input::placeholder { color: var(--hint); }
-.btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  height: 36px; padding: 0 14px; border-radius: var(--radius-sm);
-  font-size: 13px; font-weight: 500; transition: opacity .15s, background .15s;
-  white-space: nowrap;
-}
+.btn { display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 14px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; transition: opacity .15s, background .15s; white-space: nowrap; }
 .btn-ghost { background: var(--surface2); color: var(--muted); border: 1px solid var(--border); }
 .btn-ghost:hover { border-color: var(--border2); color: var(--text); }
 .btn-primary { background: var(--blue); color: #fff; }
@@ -114,22 +79,12 @@ input, select, textarea { font-family: var(--font); }
 .stat-card .s-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
 .filter-bar { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
 .ftabs { display: flex; gap: 6px; flex-wrap: wrap; flex: 1; }
-.ftab {
-  height: 32px; padding: 0 14px; border-radius: 99px;
-  background: var(--surface); border: 1px solid var(--border);
-  color: var(--muted); font-size: 13px; cursor: pointer;
-  display: inline-flex; align-items: center; gap: 5px;
-  transition: background .15s, border-color .15s, color .15s;
-}
+.ftab { height: 32px; padding: 0 14px; border-radius: 99px; background: var(--surface); border: 1px solid var(--border); color: var(--muted); font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; transition: background .15s, border-color .15s, color .15s; }
 .ftab:hover { border-color: var(--border2); color: var(--text); }
 .ftab.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 .ftab .cnt { font-size: 10px; opacity: .7; }
 .selects { display: flex; gap: 8px; }
-.selects select {
-  height: 32px; padding: 0 10px; border-radius: var(--radius-sm);
-  background: var(--surface2); border: 1px solid var(--border);
-  color: var(--text); font-size: 12px; cursor: pointer; outline: none;
-}
+.selects select { height: 32px; padding: 0 10px; border-radius: var(--radius-sm); background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 12px; cursor: pointer; outline: none; }
 .cnt-label { font-size: 12px; color: var(--muted); white-space: nowrap; }
 .table-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
@@ -148,8 +103,6 @@ tr:hover td { background: rgba(255,255,255,.02); }
 .b-low     { background: var(--red-dim);   color: var(--red);   }
 .serial-wrap { display: flex; flex-wrap: wrap; gap: 4px; }
 .stag { font-size: 10px; padding: 2px 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 4px; color: var(--muted); font-family: var(--mono); }
-.btn-add-sn { font-size: 10px; padding: 2px 6px; border: 1px dashed var(--border2); border-radius: 4px; background: none; color: var(--hint); cursor: pointer; display: inline-flex; align-items: center; gap: 2px; }
-.btn-add-sn:hover { color: var(--blue); border-color: var(--blue); }
 .qty-ctrl { display: inline-flex; align-items: center; gap: 6px; }
 .qbtn { width: 24px; height: 24px; border-radius: 5px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); font-size: 14px; cursor: pointer; line-height: 1; display: flex; align-items: center; justify-content: center; }
 .qbtn:hover { border-color: var(--border2); background: var(--bg); }
@@ -164,10 +117,8 @@ tr:hover td { background: rgba(255,255,255,.02); }
 .modal h3 { font-size: 16px; font-weight: 500; margin-bottom: 18px; }
 .form-group { margin-bottom: 14px; }
 .form-group label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
-.form-group input,
-.form-group select { width: 100%; height: 38px; padding: 0 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; outline: none; transition: border-color .15s; }
-.form-group input:focus,
-.form-group select:focus { border-color: var(--blue); }
+.form-group input, .form-group select { width: 100%; height: 38px; padding: 0 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text); font-size: 13px; outline: none; transition: border-color .15s; }
+.form-group input:focus, .form-group select:focus { border-color: var(--blue); }
 .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .sn-field-row { display: flex; gap: 8px; }
 .sn-field-row input { flex: 1; }
@@ -197,7 +148,6 @@ tr:hover td { background: rgba(255,255,255,.02); }
 </style>
 </head>
 <body>
-
 <div class="layout">
   <aside class="sidebar">
     <div class="sidebar-logo">
@@ -218,7 +168,6 @@ tr:hover td { background: rgba(255,255,255,.02); }
     </nav>
     <div class="sidebar-footer">v1.0.0 · Service Warehouse</div>
   </aside>
-
   <div class="main">
     <div class="topbar">
       <span class="topbar-title" id="pageTitle">แดชบอร์ด</span>
@@ -228,7 +177,7 @@ tr:hover td { background: rgba(255,255,255,.02); }
       </div>
       <button class="btn btn-ghost" onclick="openHistModal()"><i class="ti ti-history"></i> ประวัตินำออก</button>
       <button class="btn btn-ghost" onclick="openImportModal()"><i class="ti ti-download"></i> ประวัตินำเข้า</button>
-      <button class="btn btn-ghost" id="btnToggleActions" onclick="toggleActions()"><i class="ti ti-lock-open"></i> ล็อคการจัดการ</button>
+      <button class="btn btn-ghost" id="btnToggleActions" onclick="toggleActions()"><i class="ti ti-lock"></i> ปลดล็อคการจัดการ</button>
       <button class="btn btn-warn" onclick="openQuickUseModal()"><i class="ti ti-arrow-up-right"></i> นำสินค้าออก</button>
       <button class="btn btn-primary" onclick="openAddModal()"><i class="ti ti-plus"></i> เพิ่มสินค้า</button>
     </div>
@@ -307,7 +256,7 @@ tr:hover td { background: rgba(255,255,255,.02); }
   </div>
 </div>
 
-<!-- Modal นำออก (จากตาราง) -->
+<!-- Modal นำออก -->
 <div class="overlay" id="useOverlay">
   <div class="modal">
     <h3>นำสินค้าออก</h3>
@@ -403,7 +352,7 @@ let state = {
   editId: null, useTargetId: null, snTargetId: null,
   formSns: [],
   quickUseSerials: [], quickUseItemData: null,
-  showActions: false, // ล็อคการจัดการ
+  showActions: false,
 };
 let debTimer = null;
 
@@ -445,7 +394,8 @@ async function loadItems() {
     const { data } = await api(`/items?${params}`);
     state.items = data;
     renderTable();
-    document.getElementById('cntLabel') && (document.getElementById('cntLabel').textContent = `แสดง ${data.length} รายการ`);
+    const cl = document.getElementById('cntLabel');
+    if (cl) cl.textContent = `แสดง ${data.length} รายการ`;
   } catch (e) { console.error(e); }
 }
 
@@ -455,23 +405,22 @@ async function loadHistory() {
   if (type) params.set('type', type);
   try {
     const { data } = await api(`/logs?${params}`);
+    window._histData = data;
+    const input = document.querySelector('.hist-search input');
+    if (input) input.value = '';
     renderHistory(data);
   } catch (e) { console.error(e); }
 }
 
-  async function loadStats() {
-  try {
-    const { data } = await api('/items/stats');
-    state.stats = data;
-    if (document.getElementById('statGrid')) renderStats(); // เพิ่มเช็ค
-    updateSidebar();
-  } catch (e) { console.error(e); }
-}
-    
+function renderStats() {
+  const s = state.stats;
+  if (!s) return;
+  const el = document.getElementById('statGrid');
+  if (!el) return;
   const inst = s.by_type.install || { count: 0, qty: 0 };
   const svc  = s.by_type.service || { count: 0, qty: 0 };
   const fr   = s.by_type.free    || { count: 0, qty: 0 };
-  document.getElementById('statGrid').innerHTML = `
+  el.innerHTML = `
     <div class="stat-card"><div class="s-label"><i class="ti ti-packages" style="font-size:14px"></i> ทั้งหมด</div><div class="s-num">${s.total_items}</div><div class="s-sub">${s.total_qty} หน่วยรวม</div></div>
     <div class="stat-card"><div class="s-label"><span class="s-dot" style="background:var(--blue)"></span> Install</div><div class="s-num" style="color:var(--blue)">${inst.count}</div><div class="s-sub">${inst.qty} หน่วยรวม</div></div>
     <div class="stat-card"><div class="s-label"><span class="s-dot" style="background:var(--green)"></span> Service</div><div class="s-num" style="color:var(--green)">${svc.count}</div><div class="s-sub">${svc.qty} หน่วยรวม</div></div>
@@ -501,49 +450,46 @@ function renderFilterBar() {
 }
 
 function renderTable() {
+  const el = document.getElementById('tableBody');
+  if (!el) return;
   const rows = state.items;
   if (!rows.length) {
-    document.getElementById('tableBody').innerHTML = `<tr class="empty-row"><td colspan="7"><i class="ti ti-inbox"></i>ไม่พบรายการ</td></tr>`;
+    el.innerHTML = `<tr class="empty-row"><td colspan="7"><i class="ti ti-inbox"></i>ไม่พบรายการ</td></tr>`;
     return;
   }
-  document.getElementById('tableBody').innerHTML = rows.map(item => {
+  el.innerHTML = rows.map(item => {
     const isFree = item.type === 'free';
     const isLow  = item.qty <= 2;
     const serials = Array.isArray(item.serials) ? item.serials : [];
     const snHtml = !isFree
-      ? `<div class="serial-wrap">${serials.map(s=>`<span class="stag">${s}</span>`).join('')}<i class="ti ti-plus"></i> SN</button></div>`
+      ? `<div class="serial-wrap">${serials.map(s=>`<span class="stag">${s}</span>`).join('')}</div>`
       : `<span style="color:var(--hint);font-size:11px">—</span>`;
     return `<tr>
       <td><div class="item-name">${item.name}</div><div class="item-sku">${item.sku||''}</div></td>
-      <td><span class="badge b-${item.type}"><i class="ti ti-${item.type==='install'?'tool':item.type==='service'?'settings':'gift'}" style="font-size:11px"></i>${item.type==='install'?'Install':item.type==='service'?'Service':'Free'}</span></td>
+      <td><span class="badge b-${item.type}">${item.type==='install'?'Install':item.type==='service'?'Service':'Free'}</span></td>
       <td style="color:var(--muted);font-size:12px">${item.category||'—'}</td>
       <td style="text-align:center">
         <div class="qty-ctrl">
-          <button class="qbtn" disabled style="opacity:.35;cursor:not-allowed">−</button>
           <span class="qval">${item.qty}</span>
-          <button class="qbtn" disabled style="opacity:.35;cursor:not-allowed">+</button>
         </div>
         <div style="font-size:10px;color:var(--hint);margin-top:3px">${item.unit||''}</div>
       </td>
       <td>${snHtml}</td>
       <td style="text-align:center"><span class="badge ${isLow?'b-low':'b-ok'}">${isLow?'ใกล้หมด':'มีสินค้า'}</span></td>
       <td><div class="td-actions">
-  ${state.showActions ? `
-    <button class="btn btn-warn btn-xs" onclick="openUseModal(${item.id})"><i class="ti ti-arrow-up-right"></i> นำออก</button>
-    <button class="btn btn-danger btn-xs" onclick="deleteItem(${item.id})" title="ลบสินค้า">
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/>
-      </svg>
-    </button>
-  ` : `<span style="font-size:11px;color:var(--hint)">—</span>`}
-</div></td>
+        ${state.showActions ? `
+          <button class="btn btn-warn btn-xs" onclick="openUseModal(${item.id})"><i class="ti ti-arrow-up-right"></i> นำออก</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteItem(${item.id})">ลบ</button>
+        ` : `<span style="font-size:11px;color:var(--hint)">—</span>`}
+      </div></td>
     </tr>`;
   }).join('');
 }
 
 function renderHistory(logs) {
   const el = document.getElementById('histList');
-  if (!logs.length) { el.innerHTML = `<p style="text-align:center;color:var(--hint);padding:2rem">ยังไม่มีประวัติ</p>`; return; }
+  if (!el) return;
+  if (!logs.length) { el.innerHTML = `<p style="text-align:center;color:var(--hint);padding:2rem">ไม่พบรายการ</p>`; return; }
   const dotColor = { install: 'var(--blue)', service: 'var(--green)', free: 'var(--amber)' };
   el.innerHTML = logs.map(l => `
     <div class="hist-item">
@@ -554,7 +500,7 @@ function renderHistory(logs) {
           <span class="badge b-${l.item_type}" style="font-size:10px;padding:1px 6px">${l.item_type==='install'?'Install':l.item_type==='service'?'Service':'Free'}</span>
           นำออก ${l.qty} หน่วย
           ${l.serials?.length ? '· SN: '+l.serials.join(', ') : ''}
-          ${l.note ? `· ${l.note}` : ''}
+          ${l.note ? `· <span style="color:var(--muted)">${l.note}</span>` : ''}
         </div>
       </div>
       <div class="hist-time">${l.used_at}</div>
@@ -578,7 +524,6 @@ function setPage(page) {
 }
 
 function setFilterAndPage(type) { state.filter = type; setPage('items'); }
-
 function setFilter(f) { state.filter = f; loadItems(); renderFilterBar(); }
 
 function renderPage() {
@@ -662,13 +607,12 @@ async function deleteItem(id) {
   } catch (e) { showToast(e.message, 'error'); }
 }
 
-  function toggleActions() {
+function toggleActions() {
   state.showActions = !state.showActions;
   const btn = document.getElementById('btnToggleActions');
   btn.innerHTML = state.showActions
     ? '<i class="ti ti-lock-open"></i> ล็อคการจัดการ'
     : '<i class="ti ti-lock"></i> ปลดล็อคการจัดการ';
-  btn.style.color = state.showActions ? '' : 'var(--red)';
   renderTable();
 }
 
@@ -718,36 +662,26 @@ async function saveItem() {
   const qty     = parseInt(document.getElementById('fQty').value)||0;
   const unit    = document.getElementById('fUnit').value.trim();
   const serials = state.formSns;
-
   if (type !== 'free' && serials.length === 0) {
     showToast('กรุณาเพิ่ม Serial Number อย่างน้อย 1 รายการ', 'error');
     return;
   }
-
   const { data: allItems } = await api('/items?sort=name');
   const existing = allItems.find(i => i.name.trim().toLowerCase() === name.toLowerCase() && i.type === type);
-
   if (existing) {
     try {
       for (const sn of serials) {
         await api(`/items/${existing.id}/serials`, { method: 'POST', body: JSON.stringify({ serial: sn }) });
       }
       const addQty = serials.length > 0 ? serials.length : qty;
-      if (addQty > 0) {
-        await api(`/items/${existing.id}/qty`, { method: 'PATCH', body: JSON.stringify({ delta: addQty }) });
-      }
+      if (addQty > 0) await api(`/items/${existing.id}/qty`, { method: 'PATCH', body: JSON.stringify({ delta: addQty }) });
       showToast(`รวมกับ "${existing.name}" แล้ว (+${addQty})`);
       closeModal('addOverlay');
       loadItems(); loadStats();
     } catch (e) { showToast(e.message, 'error'); }
     return;
   }
-
-  const body = {
-    name, sku: document.getElementById('fSku').value.trim(),
-    type, category: document.getElementById('fCat').value.trim(),
-    qty, unit, serials,
-  };
+  const body = { name, sku: document.getElementById('fSku').value.trim(), type, category: document.getElementById('fCat').value.trim(), qty, unit, serials };
   try {
     await api('/items', { method: 'POST', body: JSON.stringify(body) });
     showToast('เพิ่มสินค้าแล้ว');
@@ -805,10 +739,9 @@ async function openUseModal(id) {
   if (data.type !== 'free' && snsInStock.length > 0) {
     snSec.innerHTML = `
       <div class="form-group">
-        <label>Serial ที่นำออก <span style="color:var(--muted)">(กด Enter เพื่อเพิ่ม)</span></label>
+        <label>Serial ที่นำออก</label>
         <div class="sn-field-row">
-          <input type="text" id="uSnInput" placeholder="กรอก Serial Number" list="uSnList"
-            onkeydown="if(event.key==='Enter'){addUseSerial();event.preventDefault()}" />
+          <input type="text" id="uSnInput" placeholder="กรอก Serial Number" list="uSnList" onkeydown="if(event.key==='Enter'){addUseSerial();event.preventDefault()}" />
           <button class="btn btn-ghost" onclick="addUseSerial()"><i class="ti ti-plus"></i> เพิ่ม</button>
         </div>
         <datalist id="uSnList">${snsInStock.map(s=>`<option value="${s.serial}">`).join('')}</datalist>
@@ -839,11 +772,9 @@ function removeUseSerial(id) {
 
 function renderUseSerialTags() {
   const el = document.getElementById('uSnTags');
-  if (el) {
-    el.innerHTML = state.useSerials.map(s=>
-      `<span class="sn-tag">${s.serial}<span class="rm" onclick="removeUseSerial(${s.id})">×</span></span>`
-    ).join('');
-  }
+  if (el) el.innerHTML = state.useSerials.map(s=>
+    `<span class="sn-tag">${s.serial}<span class="rm" onclick="removeUseSerial(${s.id})">×</span></span>`
+  ).join('');
   updateUseConfirmBtn();
   syncUQtyWithSerials();
 }
@@ -881,37 +812,15 @@ async function confirmUse() {
 function openHistModal() {
   document.getElementById('histTypeFilter').value = '';
   document.getElementById('histOverlay').classList.add('open');
-  
-  // เพิ่ม search box
   const el = document.getElementById('histList');
   const modal = el.closest('.modal');
   if (!modal.querySelector('.hist-search')) {
     const searchBox = document.createElement('div');
     searchBox.className = 'hist-search';
-    searchBox.innerHTML = `
-      <div class="search-box" style="margin-bottom:14px;min-width:unset;width:100%">
-        <i class="ti ti-search"></i>
-        <input type="text" placeholder="ค้นหา Serial, ชื่อสินค้า, หมายเหตุ..." oninput="filterHistList(this.value)" />
-      </div>`;
-    const filterBar = modal.querySelector('.filter-bar');
-    filterBar.after(searchBox);
+    searchBox.innerHTML = `<div class="search-box" style="margin-bottom:14px;min-width:unset;width:100%"><i class="ti ti-search"></i><input type="text" placeholder="ค้นหา Serial, ชื่อสินค้า, หมายเหตุ..." oninput="filterHistList(this.value)" /></div>`;
+    modal.querySelector('.filter-bar').after(searchBox);
   }
-  
   loadHistory();
-}
-
-async function loadHistory() {
-  const type = document.getElementById('histTypeFilter')?.value || '';
-  const params = new URLSearchParams({ limit: 200 });
-  if (type) params.set('type', type);
-  try {
-    const { data } = await api(`/logs?${params}`);
-    window._histData = data;
-    // clear search box
-    const input = document.querySelector('.hist-search input');
-    if (input) input.value = '';
-    renderHistory(data);
-  } catch (e) { console.error(e); }
 }
 
 function filterHistList(q) {
@@ -920,30 +829,9 @@ function filterHistList(q) {
     ? window._histData.filter(l =>
         l.item_name?.toLowerCase().includes(q.toLowerCase()) ||
         l.serials?.some(s => s.toLowerCase().includes(q.toLowerCase())) ||
-        l.note?.toLowerCase().includes(q.toLowerCase())
-      )
+        l.note?.toLowerCase().includes(q.toLowerCase()))
     : window._histData;
   renderHistory(filtered);
-}
-
-function renderHistory(logs) {
-  const el = document.getElementById('histList');
-  if (!logs.length) { el.innerHTML = `<p style="text-align:center;color:var(--hint);padding:2rem">ไม่พบรายการ</p>`; return; }
-  const dotColor = { install: 'var(--blue)', service: 'var(--green)', free: 'var(--amber)' };
-  el.innerHTML = logs.map(l => `
-    <div class="hist-item">
-      <div class="hist-dot" style="background:${dotColor[l.item_type]||'var(--muted)'}"></div>
-      <div class="hist-body">
-        <div class="hist-name">${l.item_name}</div>
-        <div class="hist-meta">
-          <span class="badge b-${l.item_type}" style="font-size:10px;padding:1px 6px">${l.item_type==='install'?'Install':l.item_type==='service'?'Service':'Free'}</span>
-          นำออก ${l.qty} หน่วย
-          ${l.serials?.length ? '· SN: '+l.serials.join(', ') : ''}
-          ${l.note ? `· <span style="color:var(--muted)">${l.note}</span>` : ''}
-        </div>
-      </div>
-      <div class="hist-time">${l.used_at}</div>
-    </div>`).join('');
 }
 
 async function openImportModal() {
@@ -952,24 +840,15 @@ async function openImportModal() {
   el.innerHTML = '<p style="text-align:center;color:var(--muted)">กำลังโหลด...</p>';
   try {
     const { data } = await api('/items/import-logs');
-    if (!data.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted)">ยังไม่มีประวัติ</p>'; return; }
-    
-    // เก็บ data ไว้ใช้ตอนค้นหา
     window._importData = data;
-    
-    // เพิ่ม search box ก่อน list
+    if (!data.length) { el.innerHTML = '<p style="text-align:center;color:var(--muted)">ยังไม่มีประวัติ</p>'; return; }
     const modal = el.closest('.modal');
     if (!modal.querySelector('.import-search')) {
       const searchBox = document.createElement('div');
       searchBox.className = 'import-search';
-      searchBox.innerHTML = `
-        <div class="search-box" style="margin-bottom:14px;min-width:unset;width:100%">
-          <i class="ti ti-search"></i>
-          <input type="text" placeholder="ค้นหา Serial, ชื่อสินค้า..." oninput="filterImportList(this.value)" />
-        </div>`;
+      searchBox.innerHTML = `<div class="search-box" style="margin-bottom:14px;min-width:unset;width:100%"><i class="ti ti-search"></i><input type="text" placeholder="ค้นหา Serial, ชื่อสินค้า..." oninput="filterImportList(this.value)" /></div>`;
       modal.insertBefore(searchBox, el);
     }
-    
     renderImportList(data);
   } catch(e) { el.innerHTML = '<p style="color:var(--red)">โหลดไม่ได้</p>'; }
 }
@@ -979,8 +858,7 @@ function filterImportList(q) {
   const filtered = q.trim()
     ? window._importData.filter(l =>
         l.item_name?.toLowerCase().includes(q.toLowerCase()) ||
-        l.serial?.toLowerCase().includes(q.toLowerCase())
-      )
+        l.serial?.toLowerCase().includes(q.toLowerCase()))
     : window._importData;
   renderImportList(filtered);
 }
@@ -995,9 +873,7 @@ function renderImportList(data) {
       <div class="hist-body">
         <div class="hist-name">${l.item_name}</div>
         <div class="hist-meta">
-          <span class="badge b-${l.item_type}" style="font-size:10px;padding:1px 6px">
-            ${l.item_type==='install'?'Install':l.item_type==='service'?'Service':'Free'}
-          </span>
+          <span class="badge b-${l.item_type}" style="font-size:10px;padding:1px 6px">${l.item_type==='install'?'Install':l.item_type==='service'?'Service':'Free'}</span>
           ${l.serial ? `· Serial: <span style="font-family:var(--mono)">${l.serial}</span>` : `· จำนวน: ${l.qty}`}
         </div>
       </div>
@@ -1042,10 +918,11 @@ async function onQuickUseItemChange() {
   const snsInStock = (data.serials||[]).filter(s=>s.status==='in_stock');
   if (data.type !== 'free') {
     sec.innerHTML = `
-      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:5px">Serial ที่นำออก <span style="color:var(--muted)">(กด Enter เพื่อเพิ่ม)</span></label>
+      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:5px">Serial ที่นำออก</label>
       <div class="sn-field-row">
         <input type="text" id="quSnInput" placeholder="กรอก Serial Number" list="quSnList"
-          onkeydown="if(event.key==='Enter'){addQuickUseSerial();event.preventDefault()}" style="flex:1;height:38px;padding:0 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none" />
+          onkeydown="if(event.key==='Enter'){addQuickUseSerial();event.preventDefault()}"
+          style="flex:1;height:38px;padding:0 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none" />
         <button class="btn btn-ghost" onclick="addQuickUseSerial()"><i class="ti ti-plus"></i> เพิ่ม</button>
       </div>
       <datalist id="quSnList">${snsInStock.map(s=>`<option value="${s.serial}">`).join('')}</datalist>
@@ -1080,8 +957,7 @@ function addQuickUseSerial() {
 
 function removeQuickUseSerial(id) {
   state.quickUseSerials = state.quickUseSerials.filter(s=>s.id!==id);
-  const tags = document.getElementById('quSnTags');
-  tags.innerHTML = state.quickUseSerials.map(s=>
+  document.getElementById('quSnTags').innerHTML = state.quickUseSerials.map(s=>
     `<span class="sn-tag">${s.serial}<span class="rm" onclick="removeQuickUseSerial(${s.id})">×</span></span>`
   ).join('');
   const btn = document.getElementById('btnQuickUse');
