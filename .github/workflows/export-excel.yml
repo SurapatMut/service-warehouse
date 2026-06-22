@@ -14,12 +14,12 @@ jobs:
         run: mkdir -p exports
       - name: Download Export Out
         run: |
-          curl -L "https://ชื่อ-service.onrender.com/api/logs/export/out" \
+          curl -L "https://service-warehouse.onrender.com/api/logs/export/out" \
             -o "exports/history_export_out.csv"
 
       - name: Download Export In
         run: |
-          curl -L "https://ชื่อ-service.onrender.com/api/logs/export/in" \
+          curl -L "https://service-warehouse.onrender.com/api/logs/export/in" \
           -o "exports/history_export_in.csv"
       - name: Commit files
         run: |
