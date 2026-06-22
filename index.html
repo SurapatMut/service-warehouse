@@ -459,9 +459,15 @@ async function loadHistory() {
   } catch (e) { console.error(e); }
 }
 
-function renderStats() {
-  const s = state.stats;
-  if (!s) return;
+  async function loadStats() {
+  try {
+    const { data } = await api('/items/stats');
+    state.stats = data;
+    if (document.getElementById('statGrid')) renderStats(); // เพิ่มเช็ค
+    updateSidebar();
+  } catch (e) { console.error(e); }
+}
+    
   const inst = s.by_type.install || { count: 0, qty: 0 };
   const svc  = s.by_type.service || { count: 0, qty: 0 };
   const fr   = s.by_type.free    || { count: 0, qty: 0 };
