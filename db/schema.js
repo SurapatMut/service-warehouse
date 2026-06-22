@@ -1,33 +1,15 @@
 const { Pool } = require('pg');
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false }
 });
 
+// ✅ return { rows } ให้ตรงกับ routes
 async function query(sql, params = []) {
   const client = await pool.connect();
   try {
     const res = await client.query(sql, params);
-    return res.rows;
-  } finally {
-    client.release();
-  }
-}
-
-async function get(sql, params = []) {
-  const rows = await query(sql, params);
-  return rows[0] || null;
-}
-
-async function run(sql, params = []) {
-  const client = await pool.connect();
-  try {
-    const res = await client.query(sql + ' RETURNING *', params);
-    return { lastID: res.rows[0]?.id, changes: res.rowCount };
-  } catch {
-    await client.query(sql, params);
-    return { lastID: null, changes: 0 };
+    return { rows: res.rows, rowCount: res.rowCount };
   } finally {
     client.release();
   }
@@ -79,4 +61,4 @@ async function initDb() {
   console.log('✅  Database initialized');
 }
 
-module.exports = { query, get, run, initDb };
+module.exports = { query, initDb };
