@@ -140,6 +140,13 @@ tr:hover td { background: rgba(255,255,255,.02); }
 .toast.error   i { color: var(--red); }
 .loading { text-align: center; padding: 3rem; color: var(--hint); }
 .loading i { font-size: 24px; display: block; margin-bottom: 8px; animation: spin 1s linear infinite; }
+.qu-item-dropdown { display: none; position: absolute; top: calc(100% + 1px); left: 0; right: 0; background: var(--surface2); border: 1px solid var(--blue); border-radius: 0 0 var(--radius-sm) var(--radius-sm); max-height: 220px; overflow-y: auto; z-index: 50; }
+.qu-item-option { padding: 9px 12px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background .1s; }
+.qu-item-option:last-child { border-bottom: none; }
+.qu-item-option:hover { background: var(--surface); }
+.qu-item-option .opt-name { font-size: 13px; font-weight: 500; }
+.qu-item-option .opt-meta { font-size: 11px; color: var(--muted); margin-top: 2px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.sn-match { font-family: var(--mono); font-size: 10px; padding: 1px 5px; background: var(--bg); border-radius: 3px; color: var(--blue); }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 900px) {
   .sidebar { display: none; }
@@ -256,7 +263,7 @@ tr:hover td { background: rgba(255,255,255,.02); }
   </div>
 </div>
 
-<!-- Modal นำออก -->
+<!-- Modal นำออก (จากตาราง) -->
 <div class="overlay" id="useOverlay">
   <div class="modal">
     <h3>นำสินค้าออก</h3>
@@ -307,7 +314,7 @@ tr:hover td { background: rgba(255,255,255,.02); }
   </div>
 </div>
 
-<!-- Modal นำสินค้าออก (topbar) -->
+<!-- Modal นำสินค้าออก (topbar) — แก้ไขแล้ว -->
 <div class="overlay" id="quickUseOverlay">
   <div class="modal">
     <h3>นำสินค้าออก</h3>
@@ -320,11 +327,18 @@ tr:hover td { background: rgba(255,255,255,.02); }
         <option value="free">Free</option>
       </select>
     </div>
-    <div class="form-group">
+    <!-- ช่องค้นหาสินค้า แบบพิมพ์ได้ (ชื่อ + SN) -->
+    <div class="form-group" style="position:relative">
       <label>เลือกสินค้า</label>
-      <select id="quItemSel" onchange="onQuickUseItemChange()">
-        <option value="">-- เลือกประเภทก่อน --</option>
-      </select>
+      <input type="text" id="quItemInput"
+        placeholder="-- เลือกประเภทก่อน --"
+        autocomplete="off"
+        disabled
+        oninput="filterQuickUseItems()"
+        onkeydown="onQuItemKeydown(event)"
+        style="width:100%;height:38px;padding:0 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;transition:border-color .15s;"
+      />
+      <div class="qu-item-dropdown" id="quItemDropdown"></div>
     </div>
     <div class="form-group" id="quSnSection"></div>
     <div class="form-group">
@@ -352,6 +366,7 @@ let state = {
   editId: null, useTargetId: null, snTargetId: null,
   formSns: [],
   quickUseSerials: [], quickUseItemData: null,
+  quickUseAllItems: [], quickUseHighlightIdx: -1,
   showActions: false,
 };
 let debTimer = null;
@@ -470,9 +485,7 @@ function renderTable() {
       <td><span class="badge b-${item.type}">${item.type==='install'?'Install':item.type==='service'?'Service':'Free'}</span></td>
       <td style="color:var(--muted);font-size:12px">${item.category||'—'}</td>
       <td style="text-align:center">
-        <div class="qty-ctrl">
-          <span class="qval">${item.qty}</span>
-        </div>
+        <div class="qty-ctrl"><span class="qval">${item.qty}</span></div>
         <div style="font-size:10px;color:var(--hint);margin-top:3px">${item.unit||''}</div>
       </td>
       <td>${snHtml}</td>
@@ -883,11 +896,22 @@ function renderImportList(data) {
     </div>`).join('');
 }
 
+// ============================================================
+// Quick Use Modal — แก้ไขใหม่ทั้งหมด
+// ============================================================
+
 async function openQuickUseModal() {
   state.quickUseSerials = [];
   state.quickUseItemData = null;
+  state.quickUseAllItems = [];
+  state.quickUseHighlightIdx = -1;
   document.getElementById('quType').value = '';
-  document.getElementById('quItemSel').innerHTML = '<option value="">-- เลือกประเภทก่อน --</option>';
+  const inp = document.getElementById('quItemInput');
+  inp.value = '';
+  inp.disabled = true;
+  inp.placeholder = '-- เลือกประเภทก่อน --';
+  inp.style.borderColor = '';
+  document.getElementById('quItemDropdown').style.display = 'none';
   document.getElementById('quSnSection').innerHTML = '';
   document.getElementById('quNote').value = '';
   const btn = document.getElementById('btnQuickUse');
@@ -898,38 +922,155 @@ async function openQuickUseModal() {
 async function onQuickUseTypeChange() {
   state.quickUseSerials = [];
   state.quickUseItemData = null;
+  state.quickUseAllItems = [];
+  state.quickUseHighlightIdx = -1;
   document.getElementById('quSnSection').innerHTML = '';
+  document.getElementById('quItemDropdown').style.display = 'none';
   const btn = document.getElementById('btnQuickUse');
   btn.disabled = true; btn.style.opacity = '.5'; btn.style.cursor = 'not-allowed';
   const type = document.getElementById('quType').value;
-  const sel = document.getElementById('quItemSel');
-  if (!type) { sel.innerHTML = '<option value="">-- เลือกประเภทก่อน --</option>'; return; }
+  const inp = document.getElementById('quItemInput');
+  inp.value = '';
+  if (!type) {
+    inp.disabled = true;
+    inp.placeholder = '-- เลือกประเภทก่อน --';
+    return;
+  }
+  inp.disabled = false;
+  inp.placeholder = 'พิมพ์ชื่อสินค้า หรือ Serial Number...';
+  inp.style.borderColor = '';
+  // โหลดสินค้าทั้งหมดในประเภทนี้ พร้อม SN
   const { data } = await api(`/items?type=${type}&sort=name`);
-  sel.innerHTML = '<option value="">-- เลือกสินค้า --</option>' +
-    data.map(i => `<option value="${i.id}">${i.name} · เหลือ ${i.qty}</option>`).join('');
+  state.quickUseAllItems = data;
+  inp.focus();
+  // แสดง dropdown ทั้งหมดก่อน
+  renderQuItemDropdown(data, '');
+  document.getElementById('quItemDropdown').style.display = 'block';
 }
 
-async function onQuickUseItemChange() {
+function filterQuickUseItems() {
+  const q = document.getElementById('quItemInput').value.trim().toLowerCase();
+  state.quickUseHighlightIdx = -1;
+
+  // ถ้าล้าง input ให้ reset
+  if (!q) {
+    state.quickUseItemData = null;
+    document.getElementById('quSnSection').innerHTML = '';
+    const btn = document.getElementById('btnQuickUse');
+    btn.disabled = true; btn.style.opacity = '.5'; btn.style.cursor = 'not-allowed';
+    renderQuItemDropdown(state.quickUseAllItems, '');
+    document.getElementById('quItemDropdown').style.display = 'block';
+    return;
+  }
+
+  const matched = state.quickUseAllItems.filter(i => {
+    const nameMatch = i.name.toLowerCase().includes(q);
+    const snMatch = (i.serials||[]).some(s =>
+      (s.status === undefined || s.status === 'in_stock') &&
+      (s.serial||s).toLowerCase().includes(q)
+    );
+    return nameMatch || snMatch;
+  });
+
+  renderQuItemDropdown(matched, q);
+  document.getElementById('quItemDropdown').style.display = 'block';
+}
+
+function renderQuItemDropdown(items, q) {
+  const dropdown = document.getElementById('quItemDropdown');
+  if (!items.length) {
+    dropdown.innerHTML = `<div style="padding:10px 12px;font-size:12px;color:var(--hint)">ไม่พบสินค้า</div>`;
+    return;
+  }
+  dropdown.innerHTML = items.map((item, idx) => {
+    // หา SN ที่ match
+    const matchedSns = q
+      ? (item.serials||[])
+          .filter(s => (s.status === undefined || s.status === 'in_stock') && (s.serial||s).toLowerCase().includes(q))
+          .map(s => `<span class="sn-match">${s.serial||s}</span>`)
+          .join(' ')
+      : '';
+    return `<div class="qu-item-option" data-idx="${idx}" data-id="${item.id}"
+        onmousedown="selectQuickUseItem(${item.id})"
+        onmouseenter="highlightQuOption(${idx})">
+      <div class="opt-name">${item.name}</div>
+      <div class="opt-meta">
+        เหลือ <strong>${item.qty}</strong> ${item.unit||''}
+        ${matchedSns ? `<span style="color:var(--muted)">· SN:</span> ${matchedSns}` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function highlightQuOption(idx) {
+  state.quickUseHighlightIdx = idx;
+  document.querySelectorAll('.qu-item-option').forEach((el, i) => {
+    el.style.background = i === idx ? 'var(--surface)' : '';
+  });
+}
+
+function onQuItemKeydown(e) {
+  const dropdown = document.getElementById('quItemDropdown');
+  const opts = dropdown.querySelectorAll('.qu-item-option');
+  if (!opts.length) return;
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    state.quickUseHighlightIdx = Math.min(state.quickUseHighlightIdx + 1, opts.length - 1);
+    highlightQuOption(state.quickUseHighlightIdx);
+    opts[state.quickUseHighlightIdx]?.scrollIntoView({ block: 'nearest' });
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    state.quickUseHighlightIdx = Math.max(state.quickUseHighlightIdx - 1, 0);
+    highlightQuOption(state.quickUseHighlightIdx);
+    opts[state.quickUseHighlightIdx]?.scrollIntoView({ block: 'nearest' });
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    const idx = state.quickUseHighlightIdx >= 0 ? state.quickUseHighlightIdx : 0;
+    const opt = opts[idx];
+    if (opt) selectQuickUseItem(parseInt(opt.dataset.id));
+  } else if (e.key === 'Escape') {
+    dropdown.style.display = 'none';
+  }
+}
+
+async function selectQuickUseItem(id) {
+  const item = state.quickUseAllItems.find(i => i.id === id);
+  if (!item) return;
+
+  // set input text
+  const inp = document.getElementById('quItemInput');
+  inp.value = item.name;
+  inp.style.borderColor = 'var(--green)';
+  document.getElementById('quItemDropdown').style.display = 'none';
+
   state.quickUseSerials = [];
-  const id = document.getElementById('quItemSel').value;
   const sec = document.getElementById('quSnSection');
   const btn = document.getElementById('btnQuickUse');
-  if (!id) { sec.innerHTML = ''; btn.disabled = true; btn.style.opacity = '.5'; btn.style.cursor = 'not-allowed'; return; }
+
+  // โหลด detail เพื่อได้ SN status ล่าสุด
   const { data } = await api(`/items/${id}`);
   state.quickUseItemData = data;
-  const snsInStock = (data.serials||[]).filter(s=>s.status==='in_stock');
+
+  const snsInStock = (data.serials||[]).filter(s => s.status === 'in_stock');
+
   if (data.type !== 'free') {
     sec.innerHTML = `
-      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:5px">Serial ที่นำออก</label>
+      <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:5px">
+        Serial ที่นำออก
+        <span style="color:var(--hint);font-weight:400">(ในคลัง ${snsInStock.length} รายการ)</span>
+      </label>
       <div class="sn-field-row">
-        <input type="text" id="quSnInput" placeholder="กรอก Serial Number" list="quSnList"
+        <input type="text" id="quSnInput" placeholder="พิมพ์ Serial Number" list="quSnList"
           onkeydown="if(event.key==='Enter'){addQuickUseSerial();event.preventDefault()}"
-          style="flex:1;height:38px;padding:0 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none" />
+          style="flex:1;height:38px;padding:0 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;transition:border-color .15s"
+        />
         <button class="btn btn-ghost" onclick="addQuickUseSerial()"><i class="ti ti-plus"></i> เพิ่ม</button>
       </div>
       <datalist id="quSnList">${snsInStock.map(s=>`<option value="${s.serial}">`).join('')}</datalist>
       <div class="sn-tags" id="quSnTags" style="margin-top:8px"></div>`;
     btn.disabled = true; btn.style.opacity = '.5'; btn.style.cursor = 'not-allowed';
+    document.getElementById('quSnInput').focus();
   } else {
     sec.innerHTML = `
       <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:5px">จำนวนที่นำออก</label>
@@ -949,27 +1090,32 @@ function addQuickUseSerial() {
   if (state.quickUseSerials.find(s=>s.id===match.id)) { showToast('เพิ่มแล้ว', 'error'); return; }
   state.quickUseSerials.push(match);
   input.value = '';
-  const tags = document.getElementById('quSnTags');
-  tags.innerHTML = state.quickUseSerials.map(s=>
-    `<span class="sn-tag">${s.serial}<span class="rm" onclick="removeQuickUseSerial(${s.id})">×</span></span>`
-  ).join('');
+  renderQuickUseSerialTags();
   const btn = document.getElementById('btnQuickUse');
   btn.disabled = false; btn.style.opacity = ''; btn.style.cursor = '';
 }
 
 function removeQuickUseSerial(id) {
   state.quickUseSerials = state.quickUseSerials.filter(s=>s.id!==id);
-  document.getElementById('quSnTags').innerHTML = state.quickUseSerials.map(s=>
+  renderQuickUseSerialTags();
+  const btn = document.getElementById('btnQuickUse');
+  if (state.quickUseSerials.length === 0) {
+    btn.disabled = true; btn.style.opacity = '.5'; btn.style.cursor = 'not-allowed';
+  }
+}
+
+function renderQuickUseSerialTags() {
+  const el = document.getElementById('quSnTags');
+  if (el) el.innerHTML = state.quickUseSerials.map(s=>
     `<span class="sn-tag">${s.serial}<span class="rm" onclick="removeQuickUseSerial(${s.id})">×</span></span>`
   ).join('');
-  const btn = document.getElementById('btnQuickUse');
-  if (state.quickUseSerials.length === 0) { btn.disabled = true; btn.style.opacity = '.5'; btn.style.cursor = 'not-allowed'; }
 }
 
 async function confirmQuickUse() {
-  const id = document.getElementById('quItemSel').value;
-  const note = document.getElementById('quNote').value.trim();
   const isFree = state.quickUseItemData?.type === 'free';
+  const id = state.quickUseItemData?.id;
+  if (!id) { showToast('กรุณาเลือกสินค้า', 'error'); return; }
+  const note = document.getElementById('quNote').value.trim();
   const qty = isFree ? parseInt(document.getElementById('quQty').value)||1 : state.quickUseSerials.length;
   const serial_ids = state.quickUseSerials.map(s=>s.id);
   if (!isFree && serial_ids.length === 0) { showToast('กรุณาเพิ่ม Serial Number ก่อน', 'error'); return; }
@@ -981,7 +1127,18 @@ async function confirmQuickUse() {
   } catch(e) { showToast(e.message, 'error'); }
 }
 
+// ============================================================
+
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ปิด dropdown เมื่อคลิกข้างนอก
+document.addEventListener('click', e => {
+  const inp = document.getElementById('quItemInput');
+  const dd = document.getElementById('quItemDropdown');
+  if (inp && dd && !inp.contains(e.target) && !dd.contains(e.target)) {
+    dd.style.display = 'none';
+  }
+});
 
 document.querySelectorAll('.overlay').forEach(el => {
   el.addEventListener('click', e => { if (e.target === el) el.classList.remove('open'); });
