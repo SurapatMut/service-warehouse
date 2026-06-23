@@ -184,6 +184,7 @@ tr:hover td { background: rgba(255,255,255,.02); }
         <i class="ti ti-search"></i>
         <input type="text" id="searchInput" placeholder="ค้นหาชื่อ, SKU, Serial..." oninput="debounceLoad()" />
       </div>
+      <button class="btn btn-ghost" onclick="exportExcel()"><i class="ti ti-file-spreadsheet"></i> Export Excel</button>
       <button class="btn btn-ghost" onclick="openHistModal()"><i class="ti ti-history"></i> ประวัตินำออก</button>
       <button class="btn btn-ghost" onclick="openImportModal()"><i class="ti ti-download"></i> ประวัตินำเข้า</button>
       <button class="btn btn-ghost" id="btnToggleActions" onclick="toggleActions()"><i class="ti ti-lock"></i> ปลดล็อคการจัดการ</button>
@@ -1182,6 +1183,33 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 updateClock();
+
+  async function exportExcel() {
+  try {
+    const { data } = await api('/items?sort=name');
+    
+    const rows = [['ชื่อสินค้า', 'รหัสสินค้า', 'ประเภท', 'หมวดหมู่', 'คงเหลือ', 'หน่วย', 'Serial Numbers', 'สถานะ']];
+    
+    data.forEach(item => {
+      const serials = Array.isArray(item.serials) ? item.serials.join(', ') : '';
+      const status = item.qty <= 2 ? 'ใกล้หมด' : 'มีสินค้า';
+      rows.push([item.name, item.sku || '', item.type, item.category || '', item.qty, item.unit || '', serials, status]);
+    });
+
+    const csvContent = rows.map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const BOM = '\uFEFF';
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `คลัง_${new Date().toLocaleDateString('th-TH').replace(/\//g, '-')}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Export สำเร็จ');
+  } catch(e) {
+    showToast('Export ไม่สำเร็จ', 'error');
+  }
+}
 
 async function init() {
   await loadStats();
