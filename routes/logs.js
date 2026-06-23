@@ -21,6 +21,7 @@ router.get('/', async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
+// ✅ เพิ่ม responsible ใน CSV
 router.get('/export/out', async (req, res) => {
   try {
     const { rows: logs } = await db.query(`
@@ -28,12 +29,14 @@ router.get('/export/out', async (req, res) => {
       FROM usage_logs l LEFT JOIN usage_serials us ON us.log_id=l.id
       GROUP BY l.id ORDER BY l.used_at DESC
     `);
-    const rows = [['ลำดับ','ชื่อสินค้า','ประเภท','จำนวน','Serial Numbers','หมายเหตุ','วันที่นำออก']];
+    const rows = [['ลำดับ','ชื่อสินค้า','ประเภท','จำนวน','Serial Numbers','หมายเหตุ','ผู้รับผิดชอบ','วันที่นำออก']];
     logs.forEach((l, i) => {
       rows.push([
         i+1, l.item_name, l.item_type, l.qty,
         l.serials_raw ? l.serials_raw.split('||').join(', ') : '',
-        l.note || '', l.used_at
+        l.note || '',
+        l.responsible || '',
+        l.used_at
       ]);
     });
     const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
