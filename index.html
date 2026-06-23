@@ -702,7 +702,10 @@ async function saveItem() {
         await api(`/items/${existing.id}/serials`, { method: 'POST', body: JSON.stringify({ serial: sn }) });
       }
       const addQty = serials.length > 0 ? serials.length : qty;
-      if (addQty > 0) await api(`/items/${existing.id}/qty`, { method: 'PATCH', body: JSON.stringify({ delta: addQty }) });
+      if (addQty > 0) {
+        await api(`/items/${existing.id}/qty`, { method: 'PATCH', body: JSON.stringify({ delta: addQty }) });
+        await api(`/items/${existing.id}/import-log`, { method: 'POST', body: JSON.stringify({ qty: addQty, note: 'เพิ่มจำนวน' }) });
+      }
       showToast(`รวมกับ "${existing.name}" แล้ว (+${addQty})`);
       closeModal('addOverlay');
       loadItems(); loadStats();
