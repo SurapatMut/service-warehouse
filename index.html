@@ -528,7 +528,7 @@ function renderHistory(logs) {
           ${l.note ? `· <span style="color:var(--muted)">${l.note}</span>` : ''}
         </div>
       </div>
-      <div class="hist-time">${new Date(l.imported_at).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'})}</div>
+      <div class="hist-time">${new Date(l.used_at).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'})}</div>
     </div>`).join('');
 }
 
@@ -919,7 +919,7 @@ function renderImportList(data) {
           ${l.serial ? `· Serial: <span style="font-family:var(--mono)">${l.serial}</span>` : `· จำนวน: ${l.qty}`}
         </div>
       </div>
-      <div class="hist-time">${l.imported_at}</div>
+      <div class="hist-time">${new Date(l.imported_at).toLocaleString('th-TH',{timeZone:'Asia/Bangkok'})}</div>
     </div>`).join('');
 }
 
