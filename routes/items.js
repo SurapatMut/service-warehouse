@@ -201,14 +201,17 @@ router.post('/:id/use', async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
     router.post('/:id/import-log', async (req, res) => {
-      try {
-        const { qty = 1, note = '' } = req.body;
-        const item = await db.get(`SELECT * FROM items WHERE id=$1`, [req.params.id]);
-          if (!item) return res.status(404).json({ success: false, error: 'Item not found' });
-          await db.query(`INSERT INTO import_logs (item_id,item_name,item_type,qty,note) VALUES ($1,$2,$3,$4,$5)`,
-          [item.id, item.name, item.type, parseInt(qty), note]);
-          res.json({ success: true });
-    } catch (e) { res.status(500).json({ success: false, error: e.message }); }
+  try {
+    const { qty = 1, note = '' } = req.body;
+    const { rows } = await db.query(`SELECT * FROM items WHERE id=$1`, [req.params.id]);
+    const item = rows[0];
+    if (!item) return res.status(404).json({ success: false, error: 'Item not found' });
+    await db.query(
+      `INSERT INTO import_logs (item_id,item_name,item_type,qty,note) VALUES ($1,$2,$3,$4,$5)`,
+      [item.id, item.name, item.type, parseInt(qty), note]
+    );
+    res.json({ success: true });
+  } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
 module.exports = router;
