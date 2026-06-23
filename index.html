@@ -1120,9 +1120,9 @@ function renderQuickUseSerialTags() {
   if (el) el.innerHTML = state.quickUseSerials.map(s=>
     `<span class="sn-tag">${s.serial}<span class="rm" onclick="removeQuickUseSerial(${s.id})">×</span></span>`
   ).join('');
-    }
   }
-} 
+}
+ 
   
 function updateQuickUseBtn() {
   const btn = document.getElementById('btnQuickUse');
