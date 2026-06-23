@@ -4,7 +4,6 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
-// ✅ return { rows } ให้ตรงกับ routes
 async function query(sql, params = []) {
   const client = await pool.connect();
   try {
@@ -35,14 +34,16 @@ async function initDb() {
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`);
   await query(`CREATE TABLE IF NOT EXISTS usage_logs (
-    id         SERIAL PRIMARY KEY,
-    item_id    INTEGER NOT NULL,
-    item_name  TEXT NOT NULL,
-    item_type  TEXT NOT NULL,
-    qty        INTEGER NOT NULL DEFAULT 1,
-    note       TEXT,
-    used_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id          SERIAL PRIMARY KEY,
+    item_id     INTEGER NOT NULL,
+    item_name   TEXT NOT NULL,
+    item_type   TEXT NOT NULL,
+    qty         INTEGER NOT NULL DEFAULT 1,
+    note        TEXT,
+    responsible TEXT,
+    used_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
   )`);
+  await query(`ALTER TABLE usage_logs ADD COLUMN IF NOT EXISTS responsible TEXT`);
   await query(`CREATE TABLE IF NOT EXISTS usage_serials (
     id       SERIAL PRIMARY KEY,
     log_id   INTEGER NOT NULL REFERENCES usage_logs(id) ON DELETE CASCADE,
