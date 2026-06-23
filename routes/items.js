@@ -171,16 +171,17 @@ router.delete('/:id/serials/:snId', async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: e.message }); }
 });
 
+// ✅ เพิ่ม responsible
 router.post('/:id/use', async (req, res) => {
   try {
-    const { qty=1, serial_ids=[], note='' } = req.body;
+    const { qty=1, serial_ids=[], note='', responsible='' } = req.body;
     const { rows } = await db.query(`SELECT * FROM items WHERE id=$1`, [req.params.id]);
     const item = rows[0];
     if (!item) return res.status(404).json({ success: false, error: 'Item not found' });
     if (item.qty < qty) return res.status(400).json({ success: false, error: 'Insufficient quantity' });
     const { rows: [log] } = await db.query(
-      `INSERT INTO usage_logs (item_id,item_name,item_type,qty,note) VALUES ($1,$2,$3,$4,$5) RETURNING id`,
-      [item.id, item.name, item.type, parseInt(qty), note]
+      `INSERT INTO usage_logs (item_id,item_name,item_type,qty,note,responsible) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
+      [item.id, item.name, item.type, parseInt(qty), note, responsible]
     );
     const logId = log.id;
     const usedSerials = [];
