@@ -348,7 +348,7 @@ tr:hover td { background: rgba(255,255,255,.02); }
     <!-- ✅ เพิ่มช่องผู้รับผิดชอบ -->
     <div class="form-group">
       <label>ผู้รับผิดชอบ <span style="color:var(--red)">*</span></label>
-      <input type="text" id="quResponsible" placeholder="เช่น สมชาย / ทีม Install" />
+      <input type="text" id="quResponsible" placeholder="เช่น สมชาย / ทีม Install" oninput="updateQuickUseBtn()" />
     </div>
     <div class="form-group">
       <label>หมายเหตุ</label>
@@ -1114,13 +1114,27 @@ function removeQuickUseSerial(id) {
   if (state.quickUseSerials.length === 0) {
     btn.disabled = true; btn.style.opacity = '.5'; btn.style.cursor = 'not-allowed';
   }
-}
 
 function renderQuickUseSerialTags() {
   const el = document.getElementById('quSnTags');
   if (el) el.innerHTML = state.quickUseSerials.map(s=>
     `<span class="sn-tag">${s.serial}<span class="rm" onclick="removeQuickUseSerial(${s.id})">×</span></span>`
   ).join('');
+    }
+  }
+} 
+  
+function updateQuickUseBtn() {
+  const btn = document.getElementById('btnQuickUse');
+  if (!btn) return;
+  const responsible = document.getElementById('quResponsible').value.trim();
+  const isFree = state.quickUseItemData?.type === 'free';
+  const hasItem = !!state.quickUseItemData;
+  const hasSerial = isFree ? true : state.quickUseSerials.length > 0;
+  const canUse = hasItem && hasSerial && responsible.length > 0;
+  btn.disabled = !canUse;
+  btn.style.opacity = canUse ? '' : '.5';
+  btn.style.cursor = canUse ? '' : 'not-allowed';
 }
 
 // ✅ confirmQuickUse — เพิ่มส่ง responsible
