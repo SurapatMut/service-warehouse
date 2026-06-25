@@ -1233,7 +1233,7 @@ function renderCart() {
           ${c.serials.length ? `· SN: <span style="font-family:var(--mono)">${c.serials.map(s=>s.serial).join(', ')}</span>` : ''}
         </div>
       </div>
-      <button class="btn btn-danger btn-xs" onclick="removeFromCart(${idx})"><i class="ti ti-x"></i></button>
+      <button class="btn btn-danger btn-xs" onclick="removeFromCart(${idx})"><i class="ti ti-x"></i> ลบ</button>
     </div>`).join('');
 }
 
