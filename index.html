@@ -436,15 +436,20 @@ tr:hover td { background: rgba(255,255,255,.02); }
             <option value="free">Free</option>
           </select>
         </div>
-        <div class="form-group" style="margin-bottom:0;position:relative">
+      <div class="form-group" style="margin-bottom:0;position:relative">
           <label>เลือกสินค้า</label>
-          <input type="text" id="quItemInput"
-            placeholder="-- เลือกประเภทก่อน --"
-            autocomplete="off" disabled
-            oninput="filterQuickUseItems()"
-            onkeydown="onQuItemKeydown(event)"
-            style="width:100%;height:38px;padding:0 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;transition:border-color .15s;"
-          />
+          <div style="display:flex;gap:6px;">
+            <input type="text" id="quItemInput"
+              placeholder="-- เลือกประเภทก่อน --"
+              autocomplete="off" disabled
+              oninput="filterQuickUseItems()"
+              onkeydown="onQuItemKeydown(event)"
+              style="flex:1;height:38px;padding:0 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;transition:border-color .15s;"
+            />
+            <button type="button" id="btnScanQuItem" class="btn btn-ghost" onclick="startScanner('quItemInput')" title="สแกนค้นหาสินค้า" disabled style="opacity:.5;cursor:not-allowed">
+              <i class="ti ti-scan"></i>
+            </button>
+          </div>
           <div class="qu-item-dropdown" id="quItemDropdown"></div>
         </div>
       </div>
@@ -1081,6 +1086,8 @@ async function openQuickUseModal() {
   inp.value = ''; inp.disabled = true;
   inp.placeholder = '-- เลือกประเภทก่อน --';
   inp.style.borderColor = '';
+  const scanBtn = document.getElementById('btnScanQuItem');
+  if (scanBtn) { scanBtn.disabled = true; scanBtn.style.opacity = '.5'; scanBtn.style.cursor = 'not-allowed'; }
   document.getElementById('quItemDropdown').style.display = 'none';
   document.getElementById('quSnSection').innerHTML = '';
   document.getElementById('quNote').value = '';
@@ -1123,15 +1130,18 @@ async function onQuickUseTypeChange() {
 
   const type = document.getElementById('quType').value;
   const inp  = document.getElementById('quItemInput');
+  const scanBtn = document.getElementById('btnScanQuItem');
   inp.value = '';
   if (!type) {
     inp.disabled = true;
     inp.placeholder = '-- เลือกประเภทก่อน --';
+    if (scanBtn) { scanBtn.disabled = true; scanBtn.style.opacity = '.5'; scanBtn.style.cursor = 'not-allowed'; }
     return;
   }
   inp.disabled = false;
   inp.placeholder = 'พิมพ์ชื่อสินค้า หรือ Serial Number...';
   inp.style.borderColor = '';
+  if (scanBtn) { scanBtn.disabled = false; scanBtn.style.opacity = ''; scanBtn.style.cursor = ''; }
   const { data } = await api(`/items?type=${type}&sort=name`);
   state.quickUseAllItems = data;
   inp.focus();
@@ -1240,7 +1250,8 @@ async function selectQuickUseItem(id) {
           onkeydown="if(event.key==='Enter'){addQuickUseSerial();event.preventDefault()}"
           style="flex:1;height:38px;padding:0 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;transition:border-color .15s"
         />
-        <button class="btn btn-ghost" onclick="addQuickUseSerial()"><i class="ti ti-plus"></i> เพิ่ม</button>
+        <button type="button" class="btn btn-ghost" onclick="startScanner('quSnInput')" title="สแกน SN"><i class="ti ti-scan"></i></button>
+        <button type="button" class="btn btn-ghost" onclick="addQuickUseSerial()"><i class="ti ti-plus"></i> เพิ่ม</button>
       </div>
       <datalist id="quSnList">${snsInStock.map(s=>`<option value="${s.serial}">`).join('')}</datalist>
       <div class="sn-tags" id="quSnTags" style="margin-top:8px"></div>`;
@@ -1254,7 +1265,6 @@ async function selectQuickUseItem(id) {
     _setBtnAddToCart(true);
   }
 }
-
 function addQuickUseSerial() {
   const input = document.getElementById('quSnInput');
   const v = input.value.trim();
@@ -1308,6 +1318,8 @@ function addToCart() {
   inp.value = ''; inp.disabled = true;
   inp.placeholder = '-- เลือกประเภทก่อน --';
   inp.style.borderColor = '';
+  const scanBtn = document.getElementById('btnScanQuItem');
+  if (scanBtn) { scanBtn.disabled = true; scanBtn.style.opacity = '.5'; scanBtn.style.cursor = 'not-allowed'; }
   document.getElementById('quSnSection').innerHTML = '';
   document.getElementById('quItemDropdown').style.display = 'none';
   _setBtnAddToCart(false);
@@ -1544,6 +1556,21 @@ function startScanner(inputId) {
             inputEl.dispatchEvent(new Event('input', { bubbles: true }));
             if (targetInputId === 'fSnInput') addFormSn();
             if (targetInputId === 'uSnInput') addUseSerial();
+            if (targetInputId === 'quSnInput') addQuickUseSerial();
+            if (targetInputId === 'quItemInput') {
+              const matchedItem = state.quickUseAllItems.find(i =>
+                (i.serials || []).some(s => (s.status === undefined || s.status === 'in_stock') && (s.serial || s) === decodedText)
+              );
+              if (matchedItem) {
+                selectQuickUseItem(matchedItem.id).then(() => {
+                  const snInp = document.getElementById('quSnInput');
+                  if (snInp) {
+                    snInp.value = decodedText;
+                    addQuickUseSerial();
+                  }
+                });
+              }
+            }
           }
           stopScanner();
           showToast('สแกน SN สำเร็จ: ' + decodedText);
@@ -1553,14 +1580,6 @@ function startScanner(inputId) {
       alert('ไม่สามารถเปิดกล้องได้: ' + err);
       stopScanner();
     });
-  }
-
-  function stopScanner() {
-    document.getElementById('scannerOverlay').classList.remove('open');
-    if (codeReader) {
-      codeReader.reset();
-      codeReader = null;
-    }
   }
 </script>
 </body>
