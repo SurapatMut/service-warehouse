@@ -13,6 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.4.0/tabler-icons.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
 <style>
 :root {
   --bg:       #0f1117;
@@ -324,9 +325,10 @@ tr:hover td { background: rgba(255,255,255,.02); }
     <div class="form-group" id="snFormGroup">
       <label>Serial Numbers <span style="color:var(--muted)">(กด Enter เพื่อเพิ่ม)</span></label>
       <div class="sn-field-row">
-        <input type="text" id="fSnInput" placeholder="กรอก Serial Number" onkeydown="if(event.key==='Enter'){addFormSn();event.preventDefault()}" />
-        <button class="btn btn-ghost" onclick="addFormSn()"><i class="ti ti-plus"></i> เพิ่ม</button>
-      </div>
+          <input type="text" id="fSnInput" placeholder="กรอก Serial Number" onkeydown="if(event.key==='Enter'){addFormSn();event.preventDefault();}" />
+          <button type="button" class="btn btn-ghost" onclick="startScanner('fSnInput')" title="สแกน SN"><i class="ti ti-scan"></i></button>
+          <button class="btn btn-ghost" onclick="addFormSn()"><i class="ti ti-plus"></i> เพิ่ม</button>
+        </div>
       <div class="sn-tags" id="fSnTags"></div>
     </div>
     <div class="modal-footer">
@@ -1482,6 +1484,19 @@ async function init() {
 }
 init();
 </script>
+
+<!-- หน้าต่างสแกน SN ด้วยกล้อง -->
+<div class="overlay" id="scannerOverlay" style="z-index: 300;">
+  <div class="modal" style="text-align: center;">
+    <h3>สแกน Barcode / QR Code</h3>
+    <div id="reader" style="width: 100%; border-radius: 8px; overflow: hidden; background: #000;"></div>
+    <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">นำกล้องส่องไปที่บาร์โค้ดหรือ QR Code ของ SN</p>
+    <div class="modal-footer" style="justify-content: center;">
+      <button type="button" class="btn btn-ghost" onclick="stopScanner()">ปิดกล้อง</button>
+    </div>
+  </div>
+</div>
+
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
@@ -1489,6 +1504,42 @@ init();
         .then(() => console.log('PWA Ready'))
         .catch((err) => console.log('PWA Error:', err));
     });
+  }
+
+  let html5QrCode = null;
+  let targetInputId = null;
+
+  function startScanner(inputId) {
+    targetInputId = inputId;
+    document.getElementById('scannerOverlay').classList.add('open');
+
+    html5QrCode = new Html5Qrcode("reader");
+    html5QrCode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 150 } },
+      (decodedText) => {
+        const inputEl = document.getElementById(targetInputId);
+        if (inputEl) {
+          inputEl.value = decodedText;
+          inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+          if (targetInputId === 'fSnInput') addFormSn();
+        }
+        stopScanner();
+        showToast('สแกน SN สำเร็จ: ' + decodedText);
+      },
+      (errorMessage) => {}
+    ).catch((err) => {
+      alert('ไม่สามารถเปิดกล้องได้ กรุณากดอนุญาตสิทธิ์การใช้กล้อง: ' + err);
+      stopScanner();
+    });
+  }
+
+  function stopScanner() {
+    document.getElementById('scannerOverlay').classList.remove('open');
+    if (html5QrCode) {
+      html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
+      html5QrCode = null;
+    }
   }
 </script>
 </body>
