@@ -1513,11 +1513,20 @@ init();
   <div class="modal" style="text-align: center;">
     <h3>สแกน Barcode / QR Code</h3>
     <div style="position: relative; width: 100%; border-radius: 8px; overflow: hidden; background: #000;">
-      <video id="videoScanner" playsinline muted autoplay style="width: 100%; height: 240px; object-fit: cover; display: block;"></video>
-      <!-- เส้นเล็งสีแดงตรงกลาง -->
-      <div style="position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: rgba(255,0,0,0.7); transform: translateY(-50%);"></div>
+      <video id="videoScanner" playsinline muted autoplay style="width: 100%; height: 260px; object-fit: cover; display: block;"></video>
+      <!-- กรอบและเส้นเล็งสีแดงตรงกลาง -->
+      <div style="position: absolute; top: 35%; left: 6%; right: 6%; height: 30%; border: 1px dashed rgba(255,255,255,0.5); border-radius: 6px; pointer-events: none;"></div>
+      <div style="position: absolute; top: 50%; left: 4%; right: 4%; height: 2px; background: rgba(255,0,0,0.8); transform: translateY(-50%); pointer-events: none;"></div>
     </div>
-    <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">วางเส้นสีแดงพาดผ่านบาร์โค้ดในแนวนอน (ห่างประมาณ 15-20 ซม.)</p>
+
+    <!-- ปุ่มซูมกล้อง (ช่วยให้สแกนบาร์โค้ดแท่งเล็กๆ ถี่ๆ ติดง่ายขึ้นมาก) -->
+    <div id="zoomControls" style="display: none; justify-content: center; gap: 8px; margin-top: 10px;">
+      <button type="button" class="btn btn-ghost" style="padding: 4px 12px; font-size: 12px;" onclick="setCameraZoom(1)">1x</button>
+      <button type="button" class="btn btn-ghost" style="padding: 4px 12px; font-size: 12px;" onclick="setCameraZoom(2)">2x</button>
+      <button type="button" class="btn btn-ghost" style="padding: 4px 12px; font-size: 12px;" onclick="setCameraZoom(3)">3x</button>
+    </div>
+
+    <p style="font-size: 12px; color: var(--muted); margin-top: 8px;">วางเส้นสีแดงพาดผ่านบาร์โค้ดในแนวนอน (กด 2x หากแท่งเล็ก)</p>
     <div class="modal-footer" style="justify-content: center;">
       <button type="button" class="btn btn-ghost" onclick="stopScanner()">ปิดกล้อง</button>
     </div>
@@ -1535,10 +1544,21 @@ init();
 
   let codeReader = null;
   let targetInputId = null;
+  let activeVideoTrack = null;
+
+  function setCameraZoom(zoomLevel) {
+    if (!activeVideoTrack) return;
+    const capabilities = activeVideoTrack.getCapabilities ? activeVideoTrack.getCapabilities() : {};
+    if (capabilities.zoom) {
+      const clamped = Math.min(Math.max(zoomLevel, capabilities.zoom.min), capabilities.zoom.max);
+      activeVideoTrack.applyConstraints({ advanced: [{ zoom: clamped }] }).catch(() => {});
+    }
+  }
 
   async function startScanner(inputId) {
     targetInputId = inputId;
     document.getElementById('scannerOverlay').classList.add('open');
+    document.getElementById('zoomControls').style.display = 'none';
 
     if (codeReader) {
       try { codeReader.reset(); } catch (e) {}
@@ -1546,7 +1566,6 @@ init();
     }
 
     try {
-      // ระบุ Format ที่ใช้บ่อยและเปิด TRY_HARDER เพื่อให้อ่านบาร์โค้ดแท่งได้ไวและแม่นขึ้น
       const hints = new Map();
       hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
       hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
@@ -1561,43 +1580,58 @@ init();
 
       codeReader = new ZXing.BrowserMultiFormatReader(hints);
 
-      // บังคับใช้กล้องหลังเลนส์หลัก (ความละเอียด 1280x720 เพื่อให้อ่านเฟรมได้ไวและโฟกัสระยะใกล้ได้)
+      // ขอความละเอียด Full HD (1920x1080) เพื่อให้เส้นบาร์โค้ดถี่ๆ คมชัดที่สุด
       const constraints = {
         audio: false,
         video: {
           facingMode: { ideal: 'environment' },
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          focusMode: { ideal: 'continuous' }
         }
       };
 
       codeReader.decodeFromConstraints(constraints, 'videoScanner', (result, err) => {
-        if (result) {
-          const decodedText = result.getText();
-          const inputEl = document.getElementById(targetInputId);
-          if (inputEl) {
-            inputEl.value = decodedText;
-            inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-            if (targetInputId === 'fSnInput') addFormSn();
-            if (targetInputId === 'uSnInput') addUseSerial();
-            if (targetInputId === 'quSnInput') addQuickUseSerial();
-            if (targetInputId === 'quItemInput') {
-              const matchedItem = state.quickUseAllItems.find(i =>
-                (i.serials || []).some(s => (s.status === undefined || s.status === 'in_stock') && (s.serial || s) === decodedText)
-              );
-              if (matchedItem) {
-                selectQuickUseItem(matchedItem.id).then(() => {
-                  const snInp = document.getElementById('quSnInput');
-                  if (snInp) {
-                    snInp.value = decodedText;
-                    addQuickUseSerial();
-                  }
-                });
+        // เช็กความสามารถกล้องเพื่อเปิดปุ่ม Zoom 2x/3x อัตโนมัติ
+        if (!activeVideoTrack) {
+          const videoEl = document.getElementById('videoScanner');
+          if (videoEl && videoEl.srcObject) {
+            const tracks = videoEl.srcObject.getVideoTracks();
+            if (tracks.length > 0) {
+              activeVideoTrack = tracks[0];
+              const caps = activeVideoTrack.getCapabilities ? activeVideoTrack.getCapabilities() : {};
+              if (caps.zoom) {
+                document.getElementById('zoomControls').style.display = 'flex';
+                // ตั้งค่าซูมเริ่มต้นที่ 1.8x ทันทีเพื่อให้บาร์โค้ดแท่งเล็กอ่านง่ายขึ้น
+                setCameraZoom(1.8);
               }
             }
           }
+        }
+
+        if (result) {
+          const decodedText = result.getText().replace(/[\r\n]+/g, '').trim();
+          const currentTarget = targetInputId;
+
           stopScanner();
-          showToast('สแกน SN สำเร็จ: ' + decodedText);
+
+          const inputEl = document.getElementById(currentTarget);
+          if (inputEl) {
+            inputEl.value = decodedText;
+            inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+
+            if (currentTarget === 'fSnInput') {
+              addFormSn();
+              showToast('สแกน SN สำเร็จ: ' + decodedText);
+            } else if (currentTarget === 'uSnInput') {
+              addUseSerial();
+            } else if (currentTarget === 'quSnInput') {
+              const added = addQuickUseSerial();
+              if (added) {
+                showToast('เพิ่ม SN สำเร็จ: ' + decodedText);
+              }
+            }
+          }
         }
       });
     } catch (err) {
@@ -1608,6 +1642,7 @@ init();
 
   function stopScanner() {
     document.getElementById('scannerOverlay').classList.remove('open');
+    activeVideoTrack = null;
 
     if (codeReader) {
       try { codeReader.reset(); } catch (e) {}
