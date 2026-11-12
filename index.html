@@ -913,7 +913,8 @@ async function openUseModal(id) {
       <div class="form-group">
         <label>Serial ที่นำออก</label>
         <div class="sn-field-row">
-          <input type="text" id="uSnInput" placeholder="กรอก Serial Number" list="uSnList" onkeydown="if(event.key==='Enter'){addUseSerial();event.preventDefault()}" />
+          <input type="text" id="uSnInput" placeholder="กรอก Serial Number" list="uSnList" onkeydown="if(event.key==='Enter'){addUseSerial();event.preventDefault();}" />
+          <button type="button" class="btn btn-ghost" onclick="startScanner('uSnInput')" title="สแกน SN"><i class="ti ti-scan"></i></button>
           <button class="btn btn-ghost" onclick="addUseSerial()"><i class="ti ti-plus"></i> เพิ่ม</button>
         </div>
         <datalist id="uSnList">${snsInStock.map(s=>`<option value="${s.serial}">`).join('')}</datalist>
@@ -1512,7 +1513,7 @@ init();
   let codeReader = null;
   let targetInputId = null;
 
-  function startScanner(inputId) {
+function startScanner(inputId) {
     targetInputId = inputId;
     document.getElementById('scannerOverlay').classList.add('open');
 
@@ -1534,6 +1535,7 @@ init();
             inputEl.value = decodedText;
             inputEl.dispatchEvent(new Event('input', { bubbles: true }));
             if (targetInputId === 'fSnInput') addFormSn();
+            if (targetInputId === 'uSnInput') addUseSerial();
           }
           stopScanner();
           showToast('สแกน SN สำเร็จ: ' + decodedText);
