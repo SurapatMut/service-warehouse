@@ -13,7 +13,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.4.0/tabler-icons.min.css" />
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<script src="https://unpkg.com/@zxing/library@latest"></script>
 <style>
 :root {
   --bg:       #0f1117;
@@ -1484,13 +1484,16 @@ async function init() {
 }
 init();
 </script>
-
 <!-- หน้าต่างสแกน SN ด้วยกล้อง -->
 <div class="overlay" id="scannerOverlay" style="z-index: 300;">
   <div class="modal" style="text-align: center;">
     <h3>สแกน Barcode / QR Code</h3>
-    <div id="reader" style="width: 100%; border-radius: 8px; overflow: hidden; background: #000;"></div>
-    <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">นำกล้องส่องไปที่บาร์โค้ดหรือ QR Code ของ SN</p>
+    <div style="position: relative; width: 100%; border-radius: 8px; overflow: hidden; background: #000;">
+      <video id="videoScanner" style="width: 100%; height: 240px; object-fit: cover; display: block;"></video>
+      <!-- เส้นเล็งสีแดงตรงกลาง -->
+      <div style="position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: rgba(255,0,0,0.7); transform: translateY(-50%);"></div>
+    </div>
+    <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">วางเส้นสีแดงพาดผ่านบาร์โค้ดในแนวนอน (ห่างประมาณ 15-20 ซม.)</p>
     <div class="modal-footer" style="justify-content: center;">
       <button type="button" class="btn btn-ghost" onclick="stopScanner()">ปิดกล้อง</button>
     </div>
@@ -1506,61 +1509,47 @@ init();
     });
   }
 
-  let html5QrCode = null;
+  let codeReader = null;
   let targetInputId = null;
 
   function startScanner(inputId) {
     targetInputId = inputId;
     document.getElementById('scannerOverlay').classList.add('open');
 
-    // เปิดใช้ Native BarcodeDetector ของ iOS/Safari เพื่อให้อ่านบาร์โค้ดเส้นถี่ได้แม่นยำขึ้น
-    html5QrCode = new Html5Qrcode("reader", {
-      experimentalFeatures: {
-        useBarCodeDetectorIfSupported: true
-      }
-    });
-
-    html5QrCode.start(
-      { facingMode: "environment" },
+    codeReader = new ZXing.BrowserMultiFormatReader();
+    codeReader.decodeFromConstraints(
       {
-        fps: 15,
-        // ขยายกรอบสแกนให้กว้างเต็มพื้นที่แนวนอน รองรับบาร์โค้ดแท่งยาว
-        qrbox: (viewfinderWidth, viewfinderHeight) => {
-          return {
-            width: Math.floor(viewfinderWidth * 0.9),
-            height: Math.floor(viewfinderHeight * 0.45)
-          };
-        },
-        // บังคับความละเอียดกล้องระดับ Full HD และโฟกัสต่อเนื่องเพื่อให้เส้นบาร์โค้ดคมชัด
-        videoConstraints: {
+        video: {
           facingMode: "environment",
           width: { ideal: 1920 },
-          height: { ideal: 1080 },
-          focusMode: "continuous"
+          height: { ideal: 1080 }
         }
       },
-      (decodedText) => {
-        const inputEl = document.getElementById(targetInputId);
-        if (inputEl) {
-          inputEl.value = decodedText;
-          inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-          if (targetInputId === 'fSnInput') addFormSn();
+      'videoScanner',
+      (result, err) => {
+        if (result) {
+          const decodedText = result.getText();
+          const inputEl = document.getElementById(targetInputId);
+          if (inputEl) {
+            inputEl.value = decodedText;
+            inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+            if (targetInputId === 'fSnInput') addFormSn();
+          }
+          stopScanner();
+          showToast('สแกน SN สำเร็จ: ' + decodedText);
         }
-        stopScanner();
-        showToast('สแกน SN สำเร็จ: ' + decodedText);
-      },
-      (errorMessage) => {}
+      }
     ).catch((err) => {
-      alert('ไม่สามารถเปิดกล้องได้ กรุณากดอนุญาตสิทธิ์การใช้กล้อง: ' + err);
+      alert('ไม่สามารถเปิดกล้องได้: ' + err);
       stopScanner();
     });
   }
 
   function stopScanner() {
     document.getElementById('scannerOverlay').classList.remove('open');
-    if (html5QrCode) {
-      html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
-      html5QrCode = null;
+    if (codeReader) {
+      codeReader.reset();
+      codeReader = null;
     }
   }
 </script>
