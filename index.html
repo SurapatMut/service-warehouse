@@ -438,18 +438,13 @@ tr:hover td { background: rgba(255,255,255,.02); }
         </div>
       <div class="form-group" style="margin-bottom:0;position:relative">
           <label>เลือกสินค้า</label>
-          <div style="display:flex;gap:6px;">
-            <input type="text" id="quItemInput"
-              placeholder="-- เลือกประเภทก่อน --"
-              autocomplete="off" disabled
-              oninput="filterQuickUseItems()"
-              onkeydown="onQuItemKeydown(event)"
-              style="flex:1;height:38px;padding:0 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;transition:border-color .15s;"
-            />
-            <button type="button" id="btnScanQuItem" class="btn btn-ghost" onclick="startScanner('quItemInput')" title="สแกนค้นหาสินค้า" disabled style="opacity:.5;cursor:not-allowed">
-              <i class="ti ti-scan"></i>
-            </button>
-          </div>
+          <input type="text" id="quItemInput"
+            placeholder="-- เลือกประเภทก่อน --"
+            autocomplete="off" disabled
+            oninput="filterQuickUseItems()"
+            onkeydown="onQuItemKeydown(event)"
+            style="width:100%;height:38px;padding:0 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;transition:border-color .15s;"
+          />
           <div class="qu-item-dropdown" id="quItemDropdown"></div>
         </div>
       </div>
@@ -1533,21 +1528,32 @@ init();
   let codeReader = null;
   let targetInputId = null;
 
-function startScanner(inputId) {
+  async function startScanner(inputId) {
     targetInputId = inputId;
     document.getElementById('scannerOverlay').classList.add('open');
 
-    codeReader = new ZXing.BrowserMultiFormatReader();
-    codeReader.decodeFromConstraints(
-      {
-        video: {
-          facingMode: "environment",
-          width: { ideal: 1920 },
-          height: { ideal: 1080 }
-        }
-      },
-      'videoScanner',
-      (result, err) => {
+    if (codeReader) {
+      try { codeReader.reset(); } catch (e) {}
+      codeReader = null;
+    }
+
+    try {
+      const hints = new Map();
+      hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+      codeReader = new ZXing.BrowserMultiFormatReader(hints);
+
+      const videoInputDevices = await codeReader.listVideoInputDevices();
+      let selectedDeviceId = undefined;
+      if (videoInputDevices.length > 0) {
+        const backCam = videoInputDevices.find(d => 
+          d.label.toLowerCase().includes('back') || 
+          d.label.toLowerCase().includes('rear') || 
+          d.label.toLowerCase().includes('environment')
+        );
+        selectedDeviceId = backCam ? backCam.deviceId : videoInputDevices[videoInputDevices.length - 1].deviceId;
+      }
+
+      codeReader.decodeFromVideoDevice(selectedDeviceId, 'videoScanner', (result, err) => {
         if (result) {
           const decodedText = result.getText();
           const inputEl = document.getElementById(targetInputId);
@@ -1575,11 +1581,28 @@ function startScanner(inputId) {
           stopScanner();
           showToast('สแกน SN สำเร็จ: ' + decodedText);
         }
-      }
-    ).catch((err) => {
+      });
+    } catch (err) {
       alert('ไม่สามารถเปิดกล้องได้: ' + err);
       stopScanner();
-    });
+    }
+  }
+
+  function stopScanner() {
+    document.getElementById('scannerOverlay').classList.remove('open');
+
+    if (codeReader) {
+      try { codeReader.reset(); } catch (e) {}
+      codeReader = null;
+    }
+
+    const videoEl = document.getElementById('videoScanner');
+    if (videoEl && videoEl.srcObject) {
+      try {
+        videoEl.srcObject.getTracks().forEach(track => track.stop());
+      } catch (e) {}
+      videoEl.srcObject = null;
+    }
   }
 </script>
 </body>
