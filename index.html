@@ -161,26 +161,34 @@ tr:hover td { background: rgba(255,255,255,.02); }
   .stat-grid { grid-template-columns: repeat(2,1fr); }
 }
 @media (max-width: 768px) {
-  /* 1. ปรับแถบด้านบนให้เรียงพอดีจอ ไม่ล้นขวา */
+  /* 1. ปรับแถบด้านบนให้เรียงเป็นระเบียบ ไม่เบียดกัน */
   .topbar {
     flex-wrap: wrap;
-    padding: 10px 14px;
-    gap: 8px;
+    padding: 12px 14px;
+    gap: 10px;
   }
+  
   .topbar-title {
     font-size: 16px;
-    width: auto;
+    flex: 1 1 100%; /* บังคับให้หัวข้ออยู่เต็มบรรทัดแรก */
+    margin-bottom: 2px;
   }
+
+  /* กลุ่มปุ่มต่างๆ (ถ้ามี) ให้เรียงต่อกันในบรรทัดที่ 2 */
+  .topbar .btn {
+    height: 32px;
+    padding: 0 10px;
+    font-size: 12px;
+    flex: 1; /* ขยายปุ่มให้เฉลี่ยความกว้างเท่าๆ กัน */
+    justify-content: center;
+  }
+
+  /* ช่องค้นหาอยู่บรรทัดล่างสุด เต็มความกว้าง */
   .search-box {
     min-width: 0;
     width: 100%;
-    order: 3; /* ย้ายช่องค้นหาลงมาบรรทัดที่ 2 เต็มความกว้าง */
-    height: 34px;
-  }
-  .topbar .btn {
-    height: 30px;
-    padding: 0 10px;
-    font-size: 12px;
+    order: 10; 
+    height: 36px;
   }
 
   /* 2. ลดระยะขอบและย่อขนาดการ์ดสถิติให้กระชับขึ้น */
