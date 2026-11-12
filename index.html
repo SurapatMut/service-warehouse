@@ -1260,16 +1260,26 @@ async function selectQuickUseItem(id) {
 }
 function addQuickUseSerial() {
   const input = document.getElementById('quSnInput');
-  const v = input.value.trim();
-  if (!v) return;
-  const snsInStock = (state.quickUseItemData.serials||[]).filter(s=>s.status==='in_stock');
-  const match = snsInStock.find(s=>s.serial===v);
-  if (!match) { showToast('ไม่พบ Serial นี้ในคลัง', 'error'); return; }
-  if (state.quickUseSerials.find(s=>s.id===match.id)) { showToast('เพิ่มแล้ว', 'error'); return; }
+  if (!input) return false;
+  const v = input.value.replace(/[\r\n]+/g, '').trim();
+  if (!v) return false;
+  const snsInStock = (state.quickUseItemData?.serials || []).filter(s => s.status === 'in_stock');
+  
+  const match = snsInStock.find(s => s.serial.trim().toLowerCase() === v.toLowerCase());
+  if (!match) {
+    showToast(`ไม่พบ Serial "${v}" ในคลัง`, 'error');
+    return false;
+  }
+  if (state.quickUseSerials.find(s => s.id === match.id)) {
+    showToast('Serial นี้ถูกเพิ่มในรายการแล้ว', 'error');
+    input.value = '';
+    return false;
+  }
   state.quickUseSerials.push(match);
   input.value = '';
   renderQuickUseSerialTags();
   _setBtnAddToCart(state.quickUseSerials.length > 0);
+  return true;
 }
 
 function removeQuickUseSerial(id) {
