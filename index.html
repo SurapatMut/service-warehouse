@@ -1503,7 +1503,7 @@ init();
   <div class="modal" style="text-align: center;">
     <h3>สแกน Barcode / QR Code</h3>
     <div style="position: relative; width: 100%; border-radius: 8px; overflow: hidden; background: #000;">
-      <video id="videoScanner" style="width: 100%; height: 240px; object-fit: cover; display: block;"></video>
+      <video id="videoScanner" playsinline muted autoplay style="width: 100%; height: 240px; object-fit: cover; display: block;"></video>
       <!-- เส้นเล็งสีแดงตรงกลาง -->
       <div style="position: absolute; top: 50%; left: 5%; right: 5%; height: 2px; background: rgba(255,0,0,0.7); transform: translateY(-50%);"></div>
     </div>
@@ -1536,22 +1536,32 @@ init();
     }
 
     try {
+      // ระบุ Format ที่ใช้บ่อยและเปิด TRY_HARDER เพื่อให้อ่านบาร์โค้ดแท่งได้ไวและแม่นขึ้น
       const hints = new Map();
       hints.set(ZXing.DecodeHintType.TRY_HARDER, true);
+      hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS, [
+        ZXing.BarcodeFormat.CODE_128,
+        ZXing.BarcodeFormat.CODE_39,
+        ZXing.BarcodeFormat.EAN_13,
+        ZXing.BarcodeFormat.EAN_8,
+        ZXing.BarcodeFormat.ITF,
+        ZXing.BarcodeFormat.QR_CODE,
+        ZXing.BarcodeFormat.DATA_MATRIX
+      ]);
+
       codeReader = new ZXing.BrowserMultiFormatReader(hints);
 
-      const videoInputDevices = await codeReader.listVideoInputDevices();
-      let selectedDeviceId = undefined;
-      if (videoInputDevices.length > 0) {
-        const backCam = videoInputDevices.find(d => 
-          d.label.toLowerCase().includes('back') || 
-          d.label.toLowerCase().includes('rear') || 
-          d.label.toLowerCase().includes('environment')
-        );
-        selectedDeviceId = backCam ? backCam.deviceId : videoInputDevices[videoInputDevices.length - 1].deviceId;
-      }
+      // บังคับใช้กล้องหลังเลนส์หลัก (ความละเอียด 1280x720 เพื่อให้อ่านเฟรมได้ไวและโฟกัสระยะใกล้ได้)
+      const constraints = {
+        audio: false,
+        video: {
+          facingMode: { ideal: 'environment' },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        }
+      };
 
-      codeReader.decodeFromVideoDevice(selectedDeviceId, 'videoScanner', (result, err) => {
+      codeReader.decodeFromConstraints(constraints, 'videoScanner', (result, err) => {
         if (result) {
           const decodedText = result.getText();
           const inputEl = document.getElementById(targetInputId);
@@ -1602,7 +1612,7 @@ init();
       videoEl.srcObject = null;
     }
   }
-  // ปิด AutoFill และ AutoCorrect ของ iOS/Android ทุกช่อง input
+
   document.addEventListener('focusin', (e) => {
     if (e.target.tagName === 'INPUT') {
       e.target.setAttribute('autocomplete', 'new-password');
