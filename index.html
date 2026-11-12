@@ -159,6 +159,86 @@ tr:hover td { background: rgba(255,255,255,.02); }
   .sidebar { display: none; }
   .stat-grid { grid-template-columns: repeat(2,1fr); }
 }
+@media (max-width: 768px) {
+  /* 1. ปรับแถบด้านบนให้เรียงพอดีจอ ไม่ล้นขวา */
+  .topbar {
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    gap: 8px;
+  }
+  .topbar-title {
+    font-size: 16px;
+    width: auto;
+  }
+  .search-box {
+    min-width: 0;
+    width: 100%;
+    order: 3; /* ย้ายช่องค้นหาลงมาบรรทัดที่ 2 เต็มความกว้าง */
+    height: 34px;
+  }
+  .topbar .btn {
+    height: 30px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  /* 2. ลดระยะขอบและย่อขนาดการ์ดสถิติให้กระชับขึ้น */
+  .content {
+    padding: 12px;
+  }
+  .stat-grid {
+    grid-template-columns: repeat(3, 1fr); /* เรียง 3 ช่องต่อแถว ประหยัดพื้นที่แนวตั้ง */
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+  .stat-card {
+    padding: 10px;
+  }
+  .stat-card .s-label {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+  .stat-card .s-num {
+    font-size: 20px;
+  }
+  .stat-card .s-sub {
+    font-size: 10px;
+  }
+
+  /* 3. ปรับปุ่มตัวกรองให้เลื่อนซ้าย-ขวาได้ในบรรทัดเดียว ไม่ตกบรรทัด */
+  .ftabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    width: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ftab {
+    flex-shrink: 0;
+    height: 28px;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+  .selects {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* 4. แก้ปัญหาตารางตัวหนังสือซ้อนทับกัน ให้เลื่อนซ้าย-ขวาได้ */
+  .table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  table {
+    table-layout: auto;
+    min-width: 650px; /* บังคับความกว้างขั้นต่ำไม่ให้คอลัมน์บีบชนกัน */
+  }
+  th, td {
+    padding: 8px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
 </style>
 </head>
 <body>
