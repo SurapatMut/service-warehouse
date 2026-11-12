@@ -1137,11 +1137,10 @@ async function onQuickUseTypeChange() {
   inp.placeholder = 'พิมพ์ชื่อสินค้า หรือ Serial Number...';
   inp.style.borderColor = '';
   if (scanBtn) { scanBtn.disabled = false; scanBtn.style.opacity = ''; scanBtn.style.cursor = ''; }
+  
   const { data } = await api(`/items?type=${type}&sort=name`);
   state.quickUseAllItems = data;
-  inp.focus();
-  renderQuItemDropdown(data, '');
-  document.getElementById('quItemDropdown').style.display = 'block';
+  // ลบ inp.focus(), renderQuItemDropdown และ display = 'block' ออก เพื่อไม่ให้เด้งบังหน้าจอครับ
 }
 
 function filterQuickUseItems() {
