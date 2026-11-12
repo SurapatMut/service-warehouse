@@ -1513,10 +1513,32 @@ init();
     targetInputId = inputId;
     document.getElementById('scannerOverlay').classList.add('open');
 
-    html5QrCode = new Html5Qrcode("reader");
+    // เปิดใช้ Native BarcodeDetector ของ iOS/Safari เพื่อให้อ่านบาร์โค้ดเส้นถี่ได้แม่นยำขึ้น
+    html5QrCode = new Html5Qrcode("reader", {
+      experimentalFeatures: {
+        useBarCodeDetectorIfSupported: true
+      }
+    });
+
     html5QrCode.start(
       { facingMode: "environment" },
-      { fps: 10, qrbox: { width: 250, height: 150 } },
+      {
+        fps: 15,
+        // ขยายกรอบสแกนให้กว้างเต็มพื้นที่แนวนอน รองรับบาร์โค้ดแท่งยาว
+        qrbox: (viewfinderWidth, viewfinderHeight) => {
+          return {
+            width: Math.floor(viewfinderWidth * 0.9),
+            height: Math.floor(viewfinderHeight * 0.45)
+          };
+        },
+        // บังคับความละเอียดกล้องระดับ Full HD และโฟกัสต่อเนื่องเพื่อให้เส้นบาร์โค้ดคมชัด
+        videoConstraints: {
+          facingMode: "environment",
+          width: { ideal: 1920 },
+          height: { ideal: 1080 },
+          focusMode: "continuous"
+        }
+      },
       (decodedText) => {
         const inputEl = document.getElementById(targetInputId);
         if (inputEl) {
