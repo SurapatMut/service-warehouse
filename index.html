@@ -438,9 +438,9 @@ tr:hover td { background: rgba(255,255,255,.02); }
         </div>
       <div class="form-group" style="margin-bottom:0;position:relative">
           <label>เลือกสินค้า</label>
-          <input type="text" id="quItemInput"
+          <input type="search" id="quItemInput" name="search_item_field"
             placeholder="-- เลือกประเภทก่อน --"
-            autocomplete="off" disabled
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" disabled
             oninput="filterQuickUseItems()"
             onkeydown="onQuItemKeydown(event)"
             style="width:100%;height:38px;padding:0 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;transition:border-color .15s;"
@@ -1241,17 +1241,16 @@ async function selectQuickUseItem(id) {
         Serial ที่นำออก <span style="color:var(--hint)">(ในคลัง ${snsInStock.length} รายการ)</span>
       </label>
       <div class="sn-field-row">
-        <input type="text" id="quSnInput" placeholder="พิมพ์ Serial Number" list="quSnList"
+        <input type="text" id="quSnInput" name="sn_code_entry" placeholder="พิมพ์หรือสแกน SN..."
+          autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false"
           onkeydown="if(event.key==='Enter'){addQuickUseSerial();event.preventDefault()}"
           style="flex:1;height:38px;padding:0 12px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-size:13px;outline:none;transition:border-color .15s"
         />
         <button type="button" class="btn btn-ghost" onclick="startScanner('quSnInput')" title="สแกน SN"><i class="ti ti-scan"></i></button>
         <button type="button" class="btn btn-ghost" onclick="addQuickUseSerial()"><i class="ti ti-plus"></i> เพิ่ม</button>
       </div>
-      <datalist id="quSnList">${snsInStock.map(s=>`<option value="${s.serial}">`).join('')}</datalist>
       <div class="sn-tags" id="quSnTags" style="margin-top:8px"></div>`;
     _setBtnAddToCart(false);
-    document.getElementById('quSnInput').focus();
   } else {
     sec.innerHTML = `
       <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:5px">จำนวนที่นำออก</label>
@@ -1604,6 +1603,14 @@ init();
       videoEl.srcObject = null;
     }
   }
+  // ปิด AutoFill และ AutoCorrect ของ iOS/Android ทุกช่อง input
+  document.addEventListener('focusin', (e) => {
+    if (e.target.tagName === 'INPUT') {
+      e.target.setAttribute('autocomplete', 'new-password');
+      e.target.setAttribute('autocorrect', 'off');
+      e.target.setAttribute('autocapitalize', 'off');
+    }
+  });
 </script>
 </body>
 </html>
